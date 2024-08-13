@@ -13,3 +13,13 @@
 ```bash
   npm install -g http-server
 ```
+
+## notes:
+
+ICD will be developed.
+
+FROM
+TO
+TIMESTAMP
+SUBSYSTEM
+CONTROL CHARACTER

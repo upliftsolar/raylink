@@ -11,6 +11,49 @@ function dataViewToHex(dataView) {
     }
     return hexStringArray.join(' ');
 }
+window.pdv = function parseDataView(dataView) {
+    const lengths = [6, 6, 10, 1, 1];
+    // Lengths of each segment [from, to, timestamp, subsystem, controlCharacter]
+    const result = [];
+    let offset = 0;
+
+    for (const length of lengths) {
+        result.push(new DataView(dataView.buffer, dataView.byteOffset + offset, length));
+        offset += length;
+    }
+    // Append the rest of the DataView
+    if (offset < dataView.byteLength) {
+        const remainingLength = dataView.byteLength - offset;
+        result.push(new DataView(dataView.buffer, dataView.byteOffset + offset, remainingLength));
+    }
+
+    return result;
+}
+
+class ClusterMessage {
+    constructor(dataView) {
+        let _parts = window.pdv(dataView);
+        this.parts = _parts;
+    }
+    printParts() {
+        return this.parts;
+    }
+    from() {
+        return dataViewToHex(this.parts[0]);
+    }
+    controlCharacter() {
+        return dataViewToHex(this.parts[3]);
+    }
+
+    /*
+    FROM
+    TO
+    TIMESTAMP
+    SUBSYSTEM
+    CONTROL CHARACTER
+    REST OF MESSAGE (if controlCharacter was 'd' then you can use new TextDecoder(parts[4]))
+    */
+}
 
 document.getElementById('scanButton').addEventListener('click', async () => {
     document.getElementById('service-id').innerHTML = serviceUUID;
@@ -52,7 +95,8 @@ document.getElementById('scanButton').addEventListener('click', async () => {
                     console.log(`typeof value: `, console.log(value));
                     var msg = document.createElement('li');
                     //msg.innerHTML = new TextDecoder().decode(value); //<-- this produces windings-like font with questionmarks. TextDecoder is the wrong thing!
-                    msg.innerHTML = dataViewToHex(value);
+                    //msg.innerHTML = dataViewToHex(value);
+                    msg.innerHTML = (new ClusterMessage(value)).from();
                     messageList.appendChild(msg);
                 });
 
