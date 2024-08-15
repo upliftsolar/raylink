@@ -1,0 +1,32 @@
+{ 
+  "order_of_first_messages":[
+    "d - debug",
+    "m - power mode",
+    "a - analog poweer",
+    "with added structure, this is what the binary is <a><phase0>[15.015588760375977, -9.921792030334473, 0.0010340305743739009, 1.3758904933929443, 26.626220703125]</phase0><phase1>[32.74800109863281, -9.912242889404297, -0.03963597118854523, 3.136458158493042, 26.403465270996094]</phase0><phase2>[32.577850341796875, -9.913958549499512, 0.0019274206133559346, 1.3709315061569214, 25.05315589904785]</phase0></a>",
+    "C - the configuration that the board currently has",
+    "with added structure, thiss is the binary <config>[0.0, 0.0, 0.0, 57.0, 20.0, 1.0, stage, timeestamp]</config>",
+    "F - faults known to the devic. TODO: data should show an over-temperature  ",
+    "v - firmware version",
+    "12,20,21,23,30 and more - one of the power table readings (part of an IV curve)",
+
+    
+    "More information about these, and other messages, may be found in the official interface control documents.",
+    "[0, 0, 0, 0, 0, 6| 0, 0, 0, 0, 0, 0| 0, 0,  0,   0,   0, 13| 47, 22, 113, 128| 1    | 78     | 73, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]",
+    "000000ffffff |  000000000000 |  00006303a77607fcad800b2618f600007bf60000",
+    "      from       |      to         |        seconds        |       micros    |device| control| ..."
+  ],
+  "hex":[
+    "IGNORE ffffff 000000 08:57:42 & ",
+    "000000ffffff00000000000000006303a77607fcad800b2618f600007bf60000",
+    "IGNORE ffffff 000000 08:57:42 d US_DFU_recovery 2 63000 to 63099 ",
+    "000000ffffff00000000000000006303a77607fcad800b6455535f4446555f7265636f76657279203220363330303020746f203633303939",
+    "IGNORE 12:15:43 s","000000ffffff00000000000000006303d5df36d61600077315f0000400000080bf0000803a0d74dab9cdcc4c394b7eb13b0070c3415b7265616c74696d655d",
+    "IGNORE ffffff 000000 12:15:43 s","000000ffffff00000000000000006303d5df3473bc00077315d400040d74dab95b41315f495d",
+    "IGNORE ffffff 000000 08:57:34 & ","000000ffffff00000000000000006303a76e07fcad800b2618f600007bf60000",
+    "IGNORE ffffff 000000 08:57:34 d US_DFU_recovery 2 63000 to 63099  ",
+    "000000ffffff00000000000000006303a76e07fcad800b6455535f4446555f7265636f76657279203220363330303020746f203633303939"
+    ]
+  }
+
+                
