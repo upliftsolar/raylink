@@ -1,4 +1,4 @@
-function dataViewToHex(dataView) {
+export function dataViewToHex(dataView) {
     const hexStringArray = [];
     for (let i = 0; i < dataView.byteLength; i++) {
         const byte = dataView.getUint8(i);
@@ -10,16 +10,24 @@ function dataViewToHex(dataView) {
 
 
 class ClusterMessage {
-    constructor(dataView, debugging = true) {
+    constructor(dataView_or_ints, debugging = true) {
+        let dataView;
+        if (typeof dataView_or_ints === 'object') {
+            dataView = dataView_or_ints;
+        } else if (typeof dataView_or_ints[0] === 'number') {
+            dataView = new DataView(new Uint8Array(dataView_or_ints).buffer);
+        } else {
+            throw Error(`Unsupported type for ClusterMessage constructor: ${typeof (dataView_or_ints)}`)
+        }
         this.parts = ClusterMessage.parseDataView(dataView);
         if (debugging)
             this.hex = this.parts.map(dataViewToHex);
     }
-    static getClassName() {
-        return this.name;
+    getClassName() {
+        return this.constructor.name;
     }
-    static getClassToken() {
-        return `${this.name}`.replace(/_msg/, '');
+    getClassToken() {
+        return `${this.constructor.name}`.replace(/_msg/, '');
     }
 
     static addresses = [[0, 6], [(6), 6], [(6 + 6), 10], [(6 + 6 + 10), 1], [(6 + 6 + 10 + 1), 1]];
@@ -91,15 +99,22 @@ class p_msg extends ClusterMessage {
     devInfo() { return this.rawBody()[12]; }
     amps() {
         let a = this.rawBody().getFloat32(17, true);
-        if (a > 383) return 0;
+        //if (a > 383) return 0;
         return a;
     }
     volts() { return this.rawBody().getFloat32(21, true); }
-    temperature() { return this.rawBody().getFloat32(21, true); }
+    temperature() { return this.rawBody().getFloat32(25, true); }
 
-    filter() {
+    static filter() {
         return (dataView) => {
-            return (dataView[ClusterMessage.ccAddress[0]] == 112);
+            //return ClusterMessage.ccAddress[0];
+            //return dataViewToHex(dataView);
+            return 112 == dataView.getUint8(ClusterMessage.ccAddress[0]);
         };
     }
+}
+
+export {
+    ClusterMessage,
+    p_msg,
 }

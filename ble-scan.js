@@ -41,7 +41,7 @@ document.getElementById('scanButton').addEventListener('click', async () => {
                 characteristic.addEventListener('characteristicvaluechanged', (event) => {
                     const value = event.target.value;
                     console.log(`Notification received from ${characteristic.uuid}:`, new TextDecoder().decode(value));
-                    //console.log(`value: `, console.log(value));
+                    console.log(`value: `, (new Uint8Array(value.buffer, 0, 53).toString()));
                     var msg = document.createElement('li');
                     //msg.innerHTML = new TextDecoder().decode(value); //<-- this produces windings-like font with questionmarks. TextDecoder is the wrong thing!
                     //msg.innerHTML = dataViewToHex(value);

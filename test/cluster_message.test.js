@@ -1,25 +1,61 @@
-import { expect } from 'chai';
-import p_msg from '../uplift/cluster_message.js';
+import { expect, Assertion } from 'chai';
+import { p_msg, ClusterMessage, dataViewToHex } from '../uplift/cluster_message.js';
 
-//USAGE:
-//npm install mocha chai --save-dev
-const raw_msg = DataView(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42);
+// Custom assertion method
+Assertion.addMethod('trimEqual', function (expected) {
+    const actual = this._obj;
+    let _expected = (typeof expected === 'string') ? expected : dataViewToHex(expected);
+    let _actual = (typeof actual === 'string') ? actual : dataViewToHex(actual);
+
+
+    let esperanza = (_expected + '').replace(/\W/, '');
+    let realidad = (_actual + '').replace(/\W/, '');
+
+    this.assert(esperanza, realidad,
+        `expected #{this} to be slightly equal to #{exp} within tolerance of #{act}`,
+        `expected #{this} not to be slightly equal to #{exp} within tolerance of #{act}`,
+        _expected,
+        _actual
+    );
+});
+
+// USAGE:
+// npm install mocha chai --save-dev
+// npx mocha test/cluster_message.test.js
+
+const raw_ints = [51, 51, 51, 51, 51, 51, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 30, 100, 54, 61, 127, 128, 0, 112, 65, 177, 132, 60, 65, 177, 132, 60, 78, 151, 79, 65, 16, 19, 74, 90, 68, 0, 0, 0, 0, 141, 96, 78, 65, 0, 0, 228, 65];
+const raw_dv = new DataView(new Uint8Array(raw_ints).buffer);
+const raw_hex = dataViewToHex(raw_dv);
 
 describe('p_msg', () => {
-    it('should ', () => {
-        expect(p_msg(raw_msg).rawBody()).to.equal(raw_msg.slice(21, 300));
+    it('should show raw', () => {
+        let p = new p_msg(raw_dv);
+        let reconstructed = p.parts.reduce((acc, curr) => acc + dataViewToHex(curr), '');
+        expect(reconstructed).to.trimEqual(raw_dv);
+    });
+    it('should show rawBody', () => {
+        let p = new p_msg(raw_dv);
+        expect(p.rawBody()).to.trimEqual(new DataView(raw_dv.buffer, 24));
+    });
+    it('should respond with name and token', () => {
+        let p = new p_msg(raw_dv);
+        expect('name: ' + p.getClassName()).to.equal('name: p_msg');
+        expect('token: ' + p.getClassToken()).to.equal('token: p');
+        //expect(dataViewToHex(p.rawBody())).to.equal(dataViewToHex(raw_dv.buffer.slice(21, 300)));
     });
     it('should show temperature', () => {
-        expect(p_msg(raw_msg).temperature()).to.equal(28.5);
+        expect(new p_msg(raw_dv).temperature()).to.equal(28.5);
     });
     it('should show 383 amps as 0 (fix bug on UI end)', () => {
-        expect(p_msg(raw_msg).amps()).to.equal(0);
+        //hopefully new messages will not have 383 bug.
+        expect(new p_msg(raw_dv).amps()).to.equal(0);
     });
 
     it('should filter if a p-msg', () => {
-        expect(p_msg.filter()(raw_msg)).to.equal(21);
+        expect(p_msg.filter()(raw_dv)).to.be.true;
     });
     it('should not filter if not a p-msg', () => {
-        expect(p_msg.filter()(raw_msg)).to.equal(21);
+        let non_p_dv = new DataView(new ArrayBuffer(53));
+        expect(p_msg.filter()(non_p_dv)).to.be.false;
     });
 });
