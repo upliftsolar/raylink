@@ -2,7 +2,7 @@ const serviceUUID = '2997855E-05B6-2C36-86A5-6C9856C73F4D'.toLowerCase();
 //https://127.0.0.1:8081/ble.html
 
 
-
+import { ClusterMessage, Msg_p } from './uplift/cluster_message.js'
 
 document.getElementById('scanButton').addEventListener('click', async () => {
     document.getElementById('service-id').innerHTML = serviceUUID;
@@ -45,9 +45,9 @@ document.getElementById('scanButton').addEventListener('click', async () => {
                     var msg = document.createElement('li');
                     //msg.innerHTML = new TextDecoder().decode(value); //<-- this produces windings-like font with questionmarks. TextDecoder is the wrong thing!
                     //msg.innerHTML = dataViewToHex(value);
-                    msg.innerHTML = `temp: ${(new p_msg(value)).temperature()}`;
-                    console.log(`amps: ${(new p_msg(value)).amps()}`);
-                    //msg.innerHTML = `temp: ${(new p_msg(value)).temperature()}`;
+                    msg.innerHTML = `temp: ${(new Msg_p(value)).temperature()}`;
+                    console.log(`amps: ${(new Msg_p(value)).amps()}`);
+                    //msg.innerHTML = `temp: ${(new Msg_p(value)).temperature()}`;
                     messageList.appendChild(msg);
                 });
 

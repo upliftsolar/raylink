@@ -1,5 +1,5 @@
 import { expect, Assertion } from 'chai';
-import { p_msg, ClusterMessage, dataViewToHex } from '../uplift/cluster_message.js';
+import { Msg_p, ClusterMessage, dataViewToHex } from '../uplift/cluster_message.js';
 
 // Custom assertion method
 Assertion.addMethod('trimEqual', function (expected) {
@@ -27,35 +27,35 @@ const raw_ints = [51, 51, 51, 51, 51, 51, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 30, 100,
 const raw_dv = new DataView(new Uint8Array(raw_ints).buffer);
 const raw_hex = dataViewToHex(raw_dv);
 
-describe('p_msg', () => {
+describe('Msg_p', () => {
     it('should show raw', () => {
-        let p = new p_msg(raw_dv);
+        let p = new Msg_p(raw_dv);
         let reconstructed = p.parts.reduce((acc, curr) => acc + dataViewToHex(curr), '');
         expect(reconstructed).to.trimEqual(raw_dv);
     });
     it('should show rawBody', () => {
-        let p = new p_msg(raw_dv);
+        let p = new Msg_p(raw_dv);
         expect(p.rawBody()).to.trimEqual(new DataView(raw_dv.buffer, 24));
     });
     it('should respond with name and token', () => {
-        let p = new p_msg(raw_dv);
-        expect('name: ' + p.getClassName()).to.equal('name: p_msg');
+        let p = new Msg_p(raw_dv);
+        expect('name: ' + p.getClassName()).to.equal('name: Msg_p');
         expect('token: ' + p.getClassToken()).to.equal('token: p');
         //expect(dataViewToHex(p.rawBody())).to.equal(dataViewToHex(raw_dv.buffer.slice(21, 300)));
     });
     it('should show temperature', () => {
-        expect(new p_msg(raw_dv).temperature()).to.equal(28.5);
+        expect(new Msg_p(raw_dv).temperature()).to.equal(28.5);
     });
     it('should show 383 amps as 0 (fix bug on UI end)', () => {
         //hopefully new messages will not have 383 bug.
-        expect(new p_msg(raw_dv).amps()).to.equal(0);
+        expect(new Msg_p(raw_dv).amps()).to.equal(0);
     });
 
     it('should filter if a p-msg', () => {
-        expect(p_msg.filter()(raw_dv)).to.be.true;
+        expect(Msg_p.filter()(raw_dv)).to.be.true;
     });
     it('should not filter if not a p-msg', () => {
         let non_p_dv = new DataView(new ArrayBuffer(53));
-        expect(p_msg.filter()(non_p_dv)).to.be.false;
+        expect(Msg_p.filter()(non_p_dv)).to.be.false;
     });
 });

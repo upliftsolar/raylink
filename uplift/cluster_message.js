@@ -1,4 +1,4 @@
-export function dataViewToHex(dataView) {
+function dataViewToHex(dataView) {
     const hexStringArray = [];
     for (let i = 0; i < dataView.byteLength; i++) {
         const byte = dataView.getUint8(i);
@@ -10,6 +10,7 @@ export function dataViewToHex(dataView) {
 
 
 class ClusterMessage {
+    static cc = 0;
     constructor(dataView_or_ints, debugging = true) {
         let dataView;
         if (typeof dataView_or_ints === 'object') {
@@ -27,7 +28,7 @@ class ClusterMessage {
         return this.constructor.name;
     }
     getClassToken() {
-        return `${this.constructor.name}`.replace(/_msg/, '');
+        return `${this.constructor.name}`.replace(/Msg_/, '');
     }
 
     static addresses = [[0, 6], [(6), 6], [(6 + 6), 10], [(6 + 6 + 10), 1], [(6 + 6 + 10 + 1), 1]];
@@ -79,10 +80,12 @@ class ClusterMessage {
     display() { return dataViewToHex(this.parts[5]); }
     print() { console.log(display()); }
 
-    static filter(a, b, c) {
+    toString() { return dataViewToHex(this.parts[5]); }
+
+    static filter(to = 'any', from = 'any') {
         return (dataView) => {
-            //return (dataView[ccAddress] == 112);
-            return true;
+            //TODO, filter by to/from
+            return this.cc == dataView.getUint8(ClusterMessage.ccAddress[0]);
         };
     }
 
@@ -95,26 +98,31 @@ class ClusterMessage {
     REST OF MESSAGE (if controlCharacter was 'd' then you can use new TextDecoder(parts[4]))
     */
 }
-class p_msg extends ClusterMessage {
+
+class Msg_p extends ClusterMessage {
+    static cc = 112;
     devInfo() { return this.rawBody()[12]; }
     amps() {
         let a = this.rawBody().getFloat32(17, true);
-        //if (a > 383) return 0;
+        //if (a > 383) return 0; // this was an early issue on SPMs
         return a;
     }
     volts() { return this.rawBody().getFloat32(21, true); }
     temperature() { return this.rawBody().getFloat32(25, true); }
-
-    static filter() {
-        return (dataView) => {
-            //return ClusterMessage.ccAddress[0];
-            //return dataViewToHex(dataView);
-            return 112 == dataView.getUint8(ClusterMessage.ccAddress[0]);
-        };
+    toString() {
+        return `${amps()}:${volts()}:${this.temperature()}`;
+    }
+}
+class Msg_v extends ClusterMessage {
+    static cc = 118;
+    toString() {
+        return (new TextDecoder().decode(this.rawBody()));
     }
 }
 
 export {
+    dataViewToHex,
     ClusterMessage,
-    p_msg,
+    Msg_p,
+    Msg_v,
 }
