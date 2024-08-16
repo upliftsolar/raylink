@@ -9,6 +9,12 @@ describe('p_msg', () => {
     it('should ', () => {
         expect(p_msg(raw_msg).rawBody()).to.equal(raw_msg.slice(21, 300));
     });
+    it('should show temperature', () => {
+        expect(p_msg(raw_msg).temperature()).to.equal(28.5);
+    });
+    it('should show 383 amps as 0 (fix bug on UI end)', () => {
+        expect(p_msg(raw_msg).amps()).to.equal(0);
+    });
 
     it('should filter if a p-msg', () => {
         expect(p_msg.filter()(raw_msg)).to.equal(21);
