@@ -1,12 +1,12 @@
 import NotifyHandlerAbstract from './uplift/notify_handler_abstract.js';
-import CustomMiddleware from './middlewares/customMiddleware.js';
+import { Msg_p_logger, Msg_v_logger } from './middlewares/customMiddleware.js';
 
 const middleware1Switch = document.getElementById('middleware1');
 const middleware2Switch = document.getElementById('middleware2');
 
 const handler = new NotifyHandlerAbstract();
-const middleware1 = new CustomMiddleware(50);
-const middleware2 = new CustomMiddleware(70);
+const middleware1 = new Msg_p_logger(1);
+const middleware2 = new Msg_v_logger(2);
 
 const serviceUUID = '2997855E-05B6-2C36-86A5-6C9856C73F4D'.toLowerCase();
 
@@ -38,20 +38,20 @@ document.getElementById('connectButton').addEventListener('click', async () => {
 
 middleware1Switch.addEventListener('change', (event) => {
     if (event.target.checked) {
-        handler.registerMiddleware(middleware1);
+        handler.register(middleware1);
         console.log('Middleware 1 registered');
     } else {
-        handler.deregisterMiddleware(middleware1);
+        handler.deregister(middleware1);
         console.log('Middleware 1 deregistered');
     }
 });
 
 middleware2Switch.addEventListener('change', (event) => {
     if (event.target.checked) {
-        handler.registerMiddleware(middleware2);
+        handler.register(middleware2);
         console.log('Middleware 2 registered');
     } else {
-        handler.deregisterMiddleware(middleware2);
+        handler.deregister(middleware2);
         console.log('Middleware 2 deregistered');
     }
 });

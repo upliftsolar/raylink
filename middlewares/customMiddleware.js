@@ -1,15 +1,39 @@
-class CustomMiddleware {
-    constructor(threshold) {
-        this.threshold = threshold;
+import { Msg_p, Msg_v } from '../uplift/cluster_message.js'
+
+class Msg_p_logger {
+    constructor(whatever) {
+        this.whatever = whatever;
     }
 
-    process(data) {
-        if (data > this.threshold) {
-            console.log(`CustomMiddleware: Data ${data} exceeds threshold of ${this.threshold}`);
+    process(data, state) {
+        if (Msg_p.filter(data)) {
+            state.p = new Msg_p(data);
+            console.log(state.p);
+            console.log(`p: ${state.p.toString()}`)
+            return data;
         } else {
-            console.log(`CustomMiddleware: Data ${data} is within acceptable range.`);
+            return 'pass';
+        }
+    }
+}
+class Msg_v_logger {
+    constructor(whatever) {
+        this.whatever = whatever;
+    }
+
+    process(data, state) {
+        if (Msg_v.filter(data)) {
+            state.v = new Msg_v(data);
+            console.log(state.v);
+            console.log(`version: ${state.v.toString()}`)
+            return data;
+        } else {
+            return 'pass';
         }
     }
 }
 
-export default CustomMiddleware;
+export {
+    Msg_p_logger,
+    Msg_v_logger,
+}

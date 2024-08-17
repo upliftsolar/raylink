@@ -1,4 +1,4 @@
-import BluetoothMiddleware from './bluetooth_middleware.js';
+import BluetoothMiddlewareStack from './bluetooth_middleware_stack.js';
 
 const serviceUUID = '2997855E-05B6-2C36-86A5-6C9856C73F4D'.toLowerCase();
 const characteristicUUID = '467daa96-bd29-2b88-f750-1ebe82081902';
@@ -15,7 +15,7 @@ for (const characteristic of characteristics) {
 
 class NotifyHandlerAbstract {
     constructor() {
-        this.middleware = new BluetoothMiddleware();
+        this.middlewareStack = new BluetoothMiddlewareStack();
         this.characteristic = null;
         this.middlewareReferences = new Map();
     }
@@ -30,9 +30,7 @@ class NotifyHandlerAbstract {
             await this.characteristic.startNotifications();
 
             this.characteristic.addEventListener('characteristicvaluechanged', (event) => {
-                const value = event.target.value;
-                const data = this.parseValue(value);
-                this.middleware.notify(data);
+                this.middlewareStack.notify(event.target.value);
             });
 
             console.log('Connected to', device.name);
@@ -41,33 +39,29 @@ class NotifyHandlerAbstract {
         }
     }
 
-    parseValue(value) {
-        return value.getUint8(0);
-    }
-
-    registerMiddleware(middleware) {
-        if (typeof middleware.process === 'function') {
-            const boundMiddleware = middleware.process.bind(middleware);
-            this.middleware.use(boundMiddleware);
+    register(middleware) {
+        if ((typeof this.middlewareStack.process) === 'function') {
+            const boundMiddleware = middlewareStack.process.bind(middleware);
+            this.middlewareStack.use(boundMiddleware);
             this.middlewareReferences.set(middleware, boundMiddleware);
         } else {
-            this.middleware.use(middleware);
+            this.middlewareStack.use(middleware);
         }
     }
 
-    deregisterMiddleware(middleware) {
+    deregister(middleware) {
         if (this.middlewareReferences.has(middleware)) {
             const boundMiddleware = this.middlewareReferences.get(middleware);
-            this.middleware.remove(boundMiddleware);
+            this.middlewareStack.remove(boundMiddleware);
             this.middlewareReferences.delete(middleware);
-        } else {
-            this.middleware.remove(middleware);
+        } else {//TODO, why wouldn't the reference exist?
+            this.middlewareStack.remove(middleware);
         }
     }
 
     disconnect() {
         if (this.characteristic) {
-            this.characteristic.removeEventListener('characteristicvaluechanged', this.middleware.notify);
+            this.characteristic.removeEventListener('characteristicvaluechanged', this.middlewareStack.notify);
             this.characteristic.service.device.gatt.disconnect();
             console.log('Disconnected from device');
         }

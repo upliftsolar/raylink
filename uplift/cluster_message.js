@@ -104,19 +104,26 @@ class Msg_p extends ClusterMessage {
     devInfo() { return this.rawBody()[12]; }
     amps() {
         let a = this.rawBody().getFloat32(17, true);
-        //if (a > 383) return 0; // this was an early issue on SPMs
+        //DEBUGGING: if (a > 383) { console.log(new Uint8Array(this.parts[5].buffer).toString()); }
+        if (a > 383) return 0; // this was an early issue on SPMs
         return a;
     }
     volts() { return this.rawBody().getFloat32(21, true); }
     temperature() { return this.rawBody().getFloat32(25, true); }
     toString() {
-        return `${amps()}:${volts()}:${this.temperature()}`;
+        return `${this.amps()}:${this.volts()}:${this.temperature()}`;
     }
 }
 class Msg_v extends ClusterMessage {
     static cc = 118;
     toString() {
         return (new TextDecoder().decode(this.rawBody()));
+    }
+    static filter(to = 'any', from = 'any') {
+        return (dataView) => {
+            //TODO, filter by to/from
+            return Msg_v.cc == dataView.getUint8(ClusterMessage.ccAddress[0]);
+        };
     }
 }
 
