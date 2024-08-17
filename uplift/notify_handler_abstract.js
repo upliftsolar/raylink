@@ -1,21 +1,31 @@
 import BluetoothMiddleware from './bluetooth_middleware.js';
 
+const serviceUUID = '2997855E-05B6-2C36-86A5-6C9856C73F4D'.toLowerCase();
+const characteristicUUID = '467daa96-bd29-2b88-f750-1ebe82081902';
+/*
+for (const characteristic of characteristics) {
+    // Check if the characteristic supports notifications
+    if (characteristic.properties.notify) {
+        console.log(`Subscribing to characteristic: ${characteristic.uuid}`);
+
+        // Add event listener for notifications
+        document.getElementById('messageList');
+        characteristic.addEventListener('characteristicvaluechanged', (event) => {
+*/
+
 class NotifyHandlerAbstract {
     constructor() {
         this.middleware = new BluetoothMiddleware();
         this.characteristic = null;
+        this.middlewareReferences = new Map();
     }
 
-    async connect(deviceName) {
+    //const service = await server.getPrimaryService(serviceUUID);
+    async connect(device) {
         try {
-            const device = await navigator.bluetooth.requestDevice({
-                filters: [{ name: deviceName }],
-                optionalServices: ['battery_service']
-            });
-
             const server = await device.gatt.connect();
-            const service = await server.getPrimaryService('battery_service');
-            this.characteristic = await service.getCharacteristic('battery_level');
+            const service = await server.getPrimaryService(serviceUUID);
+            this.characteristic = await service.getCharacteristic(characteristicUUID);
 
             await this.characteristic.startNotifications();
 
@@ -25,7 +35,7 @@ class NotifyHandlerAbstract {
                 this.middleware.notify(data);
             });
 
-            console.log('Connected to', deviceName);
+            console.log('Connected to', device.name);
         } catch (error) {
             console.error('Error connecting to device:', error);
         }
@@ -37,15 +47,19 @@ class NotifyHandlerAbstract {
 
     registerMiddleware(middleware) {
         if (typeof middleware.process === 'function') {
-            this.middleware.use(middleware.process.bind(middleware));
+            const boundMiddleware = middleware.process.bind(middleware);
+            this.middleware.use(boundMiddleware);
+            this.middlewareReferences.set(middleware, boundMiddleware);
         } else {
             this.middleware.use(middleware);
         }
     }
 
     deregisterMiddleware(middleware) {
-        if (typeof middleware.process === 'function') {
-            this.middleware.remove(middleware.process.bind(middleware));
+        if (this.middlewareReferences.has(middleware)) {
+            const boundMiddleware = this.middlewareReferences.get(middleware);
+            this.middleware.remove(boundMiddleware);
+            this.middlewareReferences.delete(middleware);
         } else {
             this.middleware.remove(middleware);
         }
@@ -58,6 +72,7 @@ class NotifyHandlerAbstract {
             console.log('Disconnected from device');
         }
     }
+
 }
 
 export default NotifyHandlerAbstract;

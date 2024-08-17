@@ -4,32 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluetooth Device Scanner</title>
+    <title>Bluetooth Middleware Example</title>
     <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 
 <body class="bg-light">
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-body">
-                <h1 class="card-title">Bluetooth Device Scanner</h1>
-                <p class="card-text">Click the button below to scan for Bluetooth devices with service UUID
-                    <code id="service-id"></code>.
-                </p>
-                <button id="scanButton" class="btn btn-primary">Scan for Devices</button>
-                <ul id="deviceList" class="list-group mt-3"></ul>
-                <ul id="messageList" class="list-group mt-3"></ul>
+    <div class="container py-5">
+        <h1 class="text-center mb-5">Cluster Messages</h1>
+
+        <div class="d-flex justify-content-center mb-4">
+            <button id="connectButton" class="btn btn-primary btn-lg">Choose Uplift Device</button>
+        </div>
+
+        <div id="middlewareControls" class="card p-4">
+            <h2 class="card-title">Middleware Controls</h2>
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="middleware1">
+                <label class="form-check-label" for="middleware1">Enable Middleware 1 (Threshold 50)</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="middleware2">
+                <label class="form-check-label" for="middleware2">Enable Middleware 2 (Threshold 70)</label>
             </div>
         </div>
     </div>
 
-    <script src="uplift/cluster_message.js" type="module"></script>
-    <script src="ble-scan.js" type="module"></script>
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="./main.js"></script>
 </body>
 
 </html>
