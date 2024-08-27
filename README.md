@@ -14,12 +14,22 @@
   npm install -g http-server
 ```
 
-## notes:
 
-ICD will be developed.
+## ICD 
 
-FROM
-TO
-TIMESTAMP
-SUBSYSTEM
-CONTROL CHARACTER
+ICD: Uplift devices have a defined msg format, from a specific characteristic (notify)
+Review the following test, to see the subset that is implement for parsing and sending, client-side.
+
+```bash
+npm install -g mocha chai
+npx mocha test/cluster_message.test.js
+```
+
+Msg structure is
+
+* FROM
+* TO
+* TIMESTAMP
+* SUBSYSTEM
+* CONTROL CHARACTER
+* msg-specific structure, documented in ICD
