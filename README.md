@@ -14,6 +14,8 @@
   npm install -g http-server
 ```
 
+THANH: please provide a link to the Visual Studio function that you use to start the server for BLE.
+
 
 ## ICD 
 
