@@ -1,0 +1,4 @@
+{
+    "livePreview.customExternalBrowser": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --ignore-certificate-errors --user-data-dir=/tmp/chrome_dev --unsafely-treat-insecure-origin-as-secure=https://localhost:5500",
+    "livePreview.defaultPreviewPath": "/ble.html"
+}
