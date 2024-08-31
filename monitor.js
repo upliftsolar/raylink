@@ -1,3 +1,13 @@
+import NotifyHandlerAbstract from './uplift/notify_handler_abstract.js';
+import { Msg_p_logger, Msg_v_logger } from './middlewares/customMiddleware.js';
+import { BleMiddleware, OnFirstMsgPBleMiddleware } from './middlewares/bleMiddleware.js';
+import { Msg_p } from './uplift/cluster_message.js';
+// RxJS Observables for data source 1
+const { interval, fromEvent } = rxjs;
+const { map, tap } = rxjs.operators;
+
+
+
 class DataSource {
     constructor(initialSize = 1024, color = 'black') {
         this.buffer = new ArrayBuffer(initialSize);
@@ -8,28 +18,24 @@ class DataSource {
     }
 
     // Method to add a data point to the buffer
-    addDataPoint(time, value, additionalBytes = null) {
+    addClusterMessage(msg) {
+        var b = msg.buffer();
+        addDataView(new DataView(b, 0, b.byteLength));
+    }
+    addDataView(dv) {
         // Calculate the size needed for this data point
-        const requiredSize = 8 + 4 + (additionalBytes ? additionalBytes.byteLength : 0) + 2; // 8 bytes for time, 4 bytes for value, and 2 bytes for delimiter
-
-        // Ensure the buffer is large enough
+        const requiredSize = dv.byteLength + 2; // 2 bytes for delimiter
+        const start = this.size;
         if (this.size + requiredSize > this.buffer.byteLength) {
             this.expandBuffer(requiredSize);
         }
 
-        // Write the time
-        this.view.setFloat64(this.size, time);
-        this.size += 8;
-
-        // Write the value
-        this.view.setFloat32(this.size, value);
-        this.size += 4;
-
-        // Write any additional bytes
-        if (additionalBytes) {
-            new Uint8Array(this.buffer, this.size, additionalBytes.byteLength).set(new Uint8Array(additionalBytes));
-            this.size += additionalBytes.byteLength;
+        //for now, assume added dv starts at 0
+        // is there any scenario where it makes sense for dv window to be used?
+        for (let i = 0; i < dv.byteLength; i++) {
+            this.view.setUint8(start + i, dv.getUint8(i));
         }
+        this.size += dv.byteLength;
 
         // Write the delimiter
         this.view.setUint16(this.size, this.delimiter);
@@ -46,32 +52,29 @@ class DataSource {
     }
 
     // Method to retrieve all data points from the buffer
-    getDataPoints() {
-        const dataPoints = [];
+    getClusterMessages(parseFunc) {
+        const clusterMessages = [];
         let offset = 0;
 
         while (offset < this.size) {
-            const time = this.view.getFloat64(offset);
-            offset += 8;
-
-            const value = this.view.getFloat32(offset);
-            offset += 4;
-
             // Find the next delimiter
             let nextOffset = offset;
             while (nextOffset < this.size && this.view.getUint16(nextOffset) !== this.delimiter) {
                 nextOffset++;
             }
-
-            const additionalBytes = nextOffset > offset ? new Uint8Array(this.buffer.slice(offset, nextOffset)) : null;
-
-            dataPoints.push({ time, value, additionalBytes });
+            let r;
+            try {
+                r = parseFunc(new DataView(this.view.buffer, offset, nextOffset - offset));
+                clusterMessages.push(r);
+            } catch (e) {
+                console.log('skipped');
+            }
 
             // Skip the delimiter
             offset = nextOffset + 2;
         }
 
-        return dataPoints;
+        return clusterMessages;
     }
 
     getColor() {
@@ -84,6 +87,63 @@ class DataSource {
     }
 }
 
+const middleware1Switch = document.getElementById('middleware1');
+const middleware2Switch = document.getElementById('middleware2');
+
+const handler = new NotifyHandlerAbstract();
+const middleware1 = new Msg_p_logger(1);
+const middleware2 = new Msg_v_logger(2);
+
+const serviceUUID = '2997855E-05B6-2C36-86A5-6C9856C73F4D'.toLowerCase();
+
+/*
+connectButton.addEventListener('click', async () => {
+    await handler.connect('MyBluetoothDevice');
+});
+*/
+document.getElementById('connectButton').addEventListener('click', async () => {
+    //document.getElementById('service-id').innerHTML = serviceUUID;
+    try {
+        console.log('Requesting Bluetooth devices...');
+        const device = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: [serviceUUID]
+        });
+
+        console.log(`Device selected: ${device.name} (ID: ${device.id})`);
+
+
+        await handler.connect(device);
+        document.getElementById('connectButton').innerHTML = device.name;
+        handler.register(new OnFirstMsgPBleMiddleware((dataView) => {
+            document.getElementById('toggleShare').disabled = false;
+        }));
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+
+middleware1Switch.addEventListener('change', (event) => {
+    if (event.target.checked) {
+        handler.register(middleware1);
+        console.log('Middleware 1 registered');
+    } else {
+        handler.deregister(middleware1);
+        console.log('Middleware 1 deregistered');
+    }
+});
+
+middleware2Switch.addEventListener('change', (event) => {
+    if (event.target.checked) {
+        handler.register(middleware2);
+        console.log('Middleware 2 registered');
+    } else {
+        handler.deregister(middleware2);
+        console.log('Middleware 2 deregistered');
+    }
+});
+
 const svg = d3.select("svg");
 const width = +svg.attr("width");
 const height = +svg.attr("height");
@@ -94,8 +154,16 @@ const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
 
 // Define line generator
 const line = d3.line()
-    .x(d => x(d.time)) // Use time from data point for x
-    .y(d => y(d.value)); // Use float32 value for y
+    .x(d => x(d.getSeconds())) // Use time from data point for x
+    .y(d => {
+        try {
+            return y(d.volts())
+        } catch (e) {
+            console.log('filter not working for this graph.')
+            return 0;
+        }
+
+    }); // Use float32 value for y
 
 // Append path for line chart
 const path = svg.append("path")
@@ -106,6 +174,7 @@ const dataSource1 = new DataSource(1024, "steelblue");
 const dataSource2 = new DataSource(2048, "orange");
 
 // Adding initial data to dataSource1 and dataSource2
+/*
 for (let i = 0; i < 10; i++) {
     dataSource1.addDataPoint(Date.now() + i * 1000, Math.random() * 100);
 }
@@ -113,6 +182,7 @@ for (let i = 0; i < 10; i++) {
 for (let i = 0; i < 100; i++) {
     dataSource2.addDataPoint(i, Math.sin(i / 10) * 50 + 50);
 }
+*/
 
 let multiplyOdd = false;
 let useDataSource1 = true;
@@ -122,50 +192,40 @@ let sharingEnabled = false;
 
 // Function to update chart
 function updateChart(dataSource) {
-    const data = dataSource.getDataPoints();
+    const data = dataSource.getClusterMessages(Msg_p.fromDataView);
     // Update x domain based on the current data
-    x.domain(d3.extent(data, d => d.time));
+    x.domain(d3.extent(data, d => {
+        return d.getSeconds();
+    }));
     path.datum(data)
         .attr("d", line)
         .attr("stroke", dataSource.getColor()); // Use color from DataSource instance
 }
 
-// RxJS Observables for data source 1
-const { interval, fromEvent } = rxjs;
-const { map, tap } = rxjs.operators;
-
 // Data stream for data source 1 (real-time data)
-const dataStream1 = interval(1000).pipe(
-    map((i) => {
-        const time = Date.now();
-        let value = Math.random() * 100;
-        if (multiplyOdd && i % 2 !== 0) {
-            value *= 2;
-        }
-        return { time, value };
-    }),
-    tap((point) => {
-        dataSource1.addDataPoint(point.time, point.value);
-        if (useDataSource1) {
-            updateChart(dataSource1);
-            // Share data to dataSource2 if sharing is enabled
-            if (sharingEnabled) {
-                dataSource2.addDataPoint(point.time, point.value);
-            }
-        }
-    })
-);
+/*
+BLUETOOTH
+*/
 
-// Function to handle static data playback
-function updateStaticData(index) {
+const bleMiddleware = new BleMiddleware((dataView) => {
+    dataSource1.addDataView(dataView);
+    if (useDataSource1) {
+        updateChart(dataSource1);
+        // Share data to dataSource2 if sharing is enabled
+        if (sharingEnabled) {
+            dataSource2.addDataView(dataView);
+        }
+    }
+    return dataView;
+});
+handler.register(bleMiddleware);
+
+function updateUsingSharingData(index) {
     if (!useDataSource1) {
-        let data = dataSource2.getDataPoints().slice(Math.max(0, index - 10), index);
-        updateChart({ getDataPoints: () => data, getColor: () => dataSource2.getColor() });
+        let data = dataSource2.getClusterMessages(Msg_p.fromDataView).slice(Math.max(0, index - 10), index);
+        updateChart({ getClusterMessages: () => data, getColor: () => dataSource2.getColor() });
     }
 }
-
-// Start data streams
-dataStream1.subscribe();
 
 // Handle toggle multiply button click
 fromEvent(document.getElementById('toggleMultiply'), 'click').subscribe(() => {
@@ -178,11 +238,12 @@ fromEvent(document.getElementById('toggleDataSource'), 'click').subscribe(() => 
     useDataSource1 = !useDataSource1;
     console.log('Toggle data source:', useDataSource1 ? 'Data Source 1' : 'Data Source 2');
     document.getElementById('toggleShare').disabled = !useDataSource1; // Enable share button only for dataSource1
+    document.getElementById('toggleShare').innerHTML = 'Share'; // reset wording
     document.getElementById('play').disabled = useDataSource1; // Enable share button only for dataSource2
     document.getElementById('pause').disabled = useDataSource1; // Enable share button only for dataSource2
     if (!useDataSource1) {
         sharingEnabled = false; // Stop sharing when switching to dataSource2
-        updateStaticData(currentIndex);
+        updateUsingSharingData(currentIndex);
     } else {
         updateChart(dataSource1);
     }
@@ -192,8 +253,8 @@ fromEvent(document.getElementById('toggleDataSource'), 'click').subscribe(() => 
 fromEvent(document.getElementById('play'), 'click').subscribe(() => {
     if (intervalId) clearInterval(intervalId);
     intervalId = setInterval(() => {
-        currentIndex = (currentIndex + 1) % dataSource2.getDataPoints().length;
-        updateStaticData(currentIndex);
+        currentIndex = (currentIndex + 1) % dataSource2.getClusterMessages(Msg_p.fromDataView).length;
+        updateUsingSharingData(currentIndex);
         document.getElementById('slider').value = currentIndex;
     }, 500);
 });
@@ -206,6 +267,7 @@ fromEvent(document.getElementById('pause'), 'click').subscribe(() => {
 // Share button event
 fromEvent(document.getElementById('toggleShare'), 'click').subscribe(() => {
     sharingEnabled = !sharingEnabled;
+    document.getElementById('toggleShare').innerHTML = sharingEnabled ? 'Stop' : 'Clear & Share';
     if (sharingEnabled) {
         dataSource2.clear(); // Clear dataSource2 when starting to share
         console.log('Sharing enabled: data points from dataSource1 will be copied to dataSource2.');
@@ -217,7 +279,7 @@ fromEvent(document.getElementById('toggleShare'), 'click').subscribe(() => {
 // Slider event
 fromEvent(document.getElementById('slider'), 'input').subscribe(event => {
     currentIndex = parseInt(event.target.value);
-    updateStaticData(currentIndex);
+    updateUsingSharingData(currentIndex);
 });
 
 // Initial chart update

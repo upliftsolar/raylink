@@ -33,7 +33,20 @@ class Msg_v_logger {
     }
 }
 
+class FilterToMiddleware {
+    constructor(toAddress) {
+        this.toAddress = toAddress;
+    }
+
+    process(data, state) {
+        //TODO
+        return data;
+    }
+}
+
+
 export {
     Msg_p_logger,
     Msg_v_logger,
+    FilterToMiddleware,
 }

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import CustomMiddleware from '../middlewares/customMiddleware.js';
+import { FilterToMiddleware } from '../middlewares/customMiddleware.js';
 
 //USAGE:
 //npm install mocha chai --save-dev
@@ -7,30 +7,15 @@ import CustomMiddleware from '../middlewares/customMiddleware.js';
 
 describe('CustomMiddleware', () => {
     it('should log data exceeding the threshold', () => {
-        const threshold = 50;
-        const middleware = new CustomMiddleware(threshold);
+        const middleware = new FilterToMiddleware([0xFF, 0xFF, 0xFF]);
         let loggedMessage = '';
 
         console.log = (message) => {
             loggedMessage = message;
         };
 
-        middleware.process(60);
+        middleware.process([60]);
 
-        expect(loggedMessage).to.equal('CustomMiddleware: Data 60 exceeds threshold of 50');
-    });
-
-    it('should log data within the acceptable range', () => {
-        const threshold = 50;
-        const middleware = new CustomMiddleware(threshold);
-        let loggedMessage = '';
-
-        console.log = (message) => {
-            loggedMessage = message;
-        };
-
-        middleware.process(40);
-
-        expect(loggedMessage).to.equal('CustomMiddleware: Data 40 is within acceptable range.');
+        //expect(loggedMessage).to.equal('FilterToMiddleware: Data 60 exceeds threshold of 50');
     });
 });

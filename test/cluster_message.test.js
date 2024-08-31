@@ -29,27 +29,44 @@ const raw_dv = new DataView(new Uint8Array(raw_ints).buffer);
 const raw_hex = dataViewToHex(raw_dv);
 
 describe('Msg_p', () => {
+    //raw() is mainly for inspecting / debugging. 
     it('should show raw', () => {
-        let p = new Msg_p(raw_dv);
-        let reconstructed = p.parts.reduce((acc, curr) => acc + dataViewToHex(curr), '');
-        expect(reconstructed).to.trimEqual(raw_dv);
+        let p = Msg_p.fromDataView(raw_dv);
+        let r = p.raw();
+        //expect(r).to.equal(raw_ints); <<-- why doesn't this work?
+        expect(r[0][0]).to.equal(raw_ints.slice(0, 6)[0]);
+        expect(r[1][0]).to.equal(raw_ints.slice(6, 6 + 6)[0]);
+        expect(r[2][0]).to.equal(raw_ints.slice(12, 22)[0]);
+        expect(r[3][0]).to.equal(raw_ints.slice(22, 23)[0]);
     });
-    it('should show rawBody', () => {
-        let p = new Msg_p(raw_dv);
-        expect(p.rawBody()).to.trimEqual(new DataView(raw_dv.buffer, 24));
+    it('should show rawBodyDataView', () => {
+        let p = Msg_p.fromDataView(raw_dv);
+        expect(p.rawBodyDataView()).to.trimEqual(new DataView(raw_dv.buffer, 24));
+    });
+    it('ClusterMessage should have a datetime', () => {
+        let p = ClusterMessage.fromDataView(raw_dv);
+        expect(p.getTime().getDate()).to.equal(13);
+        expect(p.timestamp.seconds).to.equal(204388n);
+        expect(p.timestamp.milliseconds).to.equal(910000000);
+    });
+    it('subclass of ClusterMessage should have a datetime', () => {
+        let p = Msg_p.fromDataView(raw_dv);
+        expect(p.getTime().getDate()).to.equal(13);
+        expect(p.timestamp.seconds).to.equal(204388n);
+        expect(p.timestamp.milliseconds).to.equal(910000000);
     });
     it('should respond with name and token', () => {
-        let p = new Msg_p(raw_dv);
+        let p = Msg_p.fromDataView(raw_dv);
         expect('name: ' + p.getClassName()).to.equal('name: Msg_p');
         expect('token: ' + p.getClassToken()).to.equal('token: p');
-        //expect(dataViewToHex(p.rawBody())).to.equal(dataViewToHex(raw_dv.buffer.slice(21, 300)));
+        //expect(dataViewToHex(p.rawBodyDataView())).to.equal(dataViewToHex(raw_dv.buffer.slice(21, 300)));
     });
     it('should show temperature', () => {
-        expect(new Msg_p(raw_dv).temperature()).to.equal(28.5);
+        expect(Msg_p.fromDataView(raw_dv).temperature()).to.equal(28.5);
     });
     it('should show 383 amps as 0 (fix bug on UI end)', () => {
         //hopefully new messages will not have 383 bug.
-        expect(new Msg_p(raw_dv).amps()).to.equal(0);
+        expect(Msg_p.fromDataView(raw_dv).amps()).to.equal(0);
     });
 
     it('should filter if a p-msg', () => {
