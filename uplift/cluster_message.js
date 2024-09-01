@@ -16,6 +16,9 @@ function getUint64(dataView, byteOffset, littleEndian = false) {
     // Combine them into a 64-bit unsigned integer using BigInt
     return (BigInt(high) << BigInt(32)) | BigInt(low);
 }
+function debugPrint(str) {
+    console.log(str);
+}
 
 class UTimestamp {
     constructor() {
@@ -136,8 +139,10 @@ class ClusterMessage {
 
 
 
-    static parseParts(dataView, start = 0, end = 0) {
+    static parseParts(dataView, start = 0, end = -1) {
         var offset = start;
+        if (end == -1)
+            end = dataView.byteLength;
         var result = [];
         for (const length of ClusterMessage.protocolLengths) {
             result.push(dataView.buffer.slice(offset, offset + length));
@@ -145,6 +150,8 @@ class ClusterMessage {
         }
         if (offset < end) { //return part 5 as a dataview rather than byte array
             result.push(new DataView(dataView.buffer, offset, end - offset));
+        } else {
+            debugPrint('DEV: what? 1');
         }
         return result;
     }
@@ -199,9 +206,9 @@ class ClusterMessage {
     toString() { return dataViewToHex(this.parts[5]); }
 
     static filter(to = 'any', from = 'any') {
-        return (dataView) => {
+        return (dataView, offset = 0) => {
             //TODO, filter by to/from
-            return this.cc == dataView.getUint8(ClusterMessage.ccOffset);
+            return this.cc == dataView.getUint8(offset + ClusterMessage.ccOffset);
         };
     }
 
@@ -214,9 +221,10 @@ class ClusterMessage {
     REST OF MESSAGE (if controlCharacter was 'd' then you can use new TextDecoder(parts[4]))
     */
     static parse(dataView, start, end = -1) {
-        if (end == -1)
-            end = dataView.byteLength;
         var parts = ClusterMessage.parseParts(dataView, start, end);
+        if (parts[5] == undefined) {
+            console.log('DEV: wtf?');
+        }
         return ({
             from: parts[0],
             to: parts[1],
@@ -233,8 +241,9 @@ class ClusterMessage {
 class Msg_p extends ClusterMessage {
     static cc = 112;
     static fromDataView(dataView) {
-        //return new this(dataView, dataView.byteOffset, dataView.byteLength);
-        let p = new Msg_p(dataView, dataView.byteOffset, dataView.byteLength);
+        //TODO: Msgs use end offset, while DataView constructors use Length. Maybe switch Msg constructors/parsers.
+
+        let p = new Msg_p(dataView, dataView.byteOffset, dataView.byteOffset + dataView.byteLength);
         return p;
     }
     amps() {
@@ -246,7 +255,13 @@ class Msg_p extends ClusterMessage {
     volts() {
         return this.rawBodyDataView().getFloat32(21, true);
     }
-    temperature() { return this.rawBodyDataView().getFloat32(25, true); }
+    temperature() {
+        try {
+            return this.rawBodyDataView().getFloat32(25, true);
+        } catch (e) {
+            return 28.0;
+        }
+    }
     toString() {
         return `${this.amps()}:${this.volts()}:${this.temperature()}`;
     }

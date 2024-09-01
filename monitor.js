@@ -64,8 +64,10 @@ class DataSource {
             }
             let r;
             try {
-                r = parseFunc(new DataView(this.view.buffer, offset, nextOffset - offset));
-                clusterMessages.push(r);
+                if (Msg_p.filter()(this.view, offset)) {
+                    r = parseFunc(new DataView(this.view.buffer, offset, nextOffset - offset));
+                    clusterMessages.push(r);
+                }
             } catch (e) {
                 console.log('skipped');
             }
@@ -116,7 +118,7 @@ document.getElementById('connectButton').addEventListener('click', async () => {
         await handler.connect(device);
         document.getElementById('connectButton').innerHTML = device.name;
         handler.register(new OnFirstMsgPBleMiddleware((dataView) => {
-            document.getElementById('toggleShare').disabled = false;
+            document.getElementById('toggleCapture').disabled = false;
         }));
     } catch (error) {
         console.error('Error:', error);
@@ -145,19 +147,22 @@ middleware2Switch.addEventListener('change', (event) => {
 });
 
 const svg = d3.select("svg");
+const margin = { top: 20, right: 100, bottom: 400, left: 50 };
 const width = +svg.attr("width");
 const height = +svg.attr("height");
+//const height = 200;
 
 // Define scales
 const x = d3.scaleLinear().range([0, width]);
 const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
 
 // Define line generator
 const line = d3.line()
     .x(d => x(d.getSeconds())) // Use time from data point for x
     .y(d => {
         try {
-            return y(d.volts())
+            return y(d.temperature())
         } catch (e) {
             console.log('filter not working for this graph.')
             return 0;
@@ -165,9 +170,7 @@ const line = d3.line()
 
     }); // Use float32 value for y
 
-// Append path for line chart
-const path = svg.append("path")
-    .attr("fill", "none");
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
 // Initialize data arrays for two data sources
 const dataSource1 = new DataSource(1024, "steelblue");
@@ -184,6 +187,17 @@ for (let i = 0; i < 100; i++) {
 }
 */
 
+// Append path for line chart
+const path = g.append("path")
+    .attr("fill", "none");
+
+// Append axes
+const xAxis = g.append("g")
+    .attr("transform", `translate(0,${height})`);
+
+const yAxis = g.append("g");
+
+
 let multiplyOdd = false;
 let useDataSource1 = true;
 let currentIndex = 0;
@@ -194,12 +208,38 @@ let sharingEnabled = false;
 function updateChart(dataSource) {
     const data = dataSource.getClusterMessages(Msg_p.fromDataView);
     // Update x domain based on the current data
-    x.domain(d3.extent(data, d => {
-        return d.getSeconds();
-    }));
+    //x.domain(d3.extent(data, d => {
+    //    return d.getSeconds();
+    //}));
+
+    if (useDataSource1) {
+        const now = Date.now();
+
+        // TODO: Update x domain to show only the last 10 seconds
+        //x.domain(d3.extent(data, d => { [now - 10000, now]; });
+
+        x.domain(d3.extent(data, d => {
+            return d.getSeconds();
+        }));
+    } else {
+        // Set x domain to cover the data range in dataSource2
+        x.domain(d3.extent(data, d => {
+            return d.getSeconds();
+        }));
+
+    }
+
+    // Update y domain
+    y.domain([0, d3.max(data, d => d.temperature())]);
+
+    // Update line path
     path.datum(data)
         .attr("d", line)
-        .attr("stroke", dataSource.getColor()); // Use color from DataSource instance
+        .attr("stroke", dataSource.getColor());
+
+    // Update axes
+    xAxis.call(d3.axisBottom(x).ticks(5).tickFormat(d => (d - Date.now()) / 1000));
+    yAxis.call(d3.axisLeft(y));
 }
 
 // Data stream for data source 1 (real-time data)
@@ -211,7 +251,7 @@ const bleMiddleware = new BleMiddleware((dataView) => {
     dataSource1.addDataView(dataView);
     if (useDataSource1) {
         updateChart(dataSource1);
-        // Share data to dataSource2 if sharing is enabled
+        // Capture data to dataSource2 if sharing is enabled
         if (sharingEnabled) {
             dataSource2.addDataView(dataView);
         }
@@ -220,7 +260,7 @@ const bleMiddleware = new BleMiddleware((dataView) => {
 });
 handler.register(bleMiddleware);
 
-function updateUsingSharingData(index) {
+function updateUsingCapturingData(index) {
     if (!useDataSource1) {
         let data = dataSource2.getClusterMessages(Msg_p.fromDataView).slice(Math.max(0, index - 10), index);
         updateChart({ getClusterMessages: () => data, getColor: () => dataSource2.getColor() });
@@ -228,22 +268,31 @@ function updateUsingSharingData(index) {
 }
 
 // Handle toggle multiply button click
+/*
 fromEvent(document.getElementById('toggleMultiply'), 'click').subscribe(() => {
     multiplyOdd = !multiplyOdd;
     console.log('Toggle multiply odd messages:', multiplyOdd);
+});
+*/
+
+
+fromEvent(document.getElementById('monitor-graph'), 'click').subscribe(() => {
+    document.getElementById('capture-controls').classList.remove('hidden');
 });
 
 // Handle toggle data source button click
 fromEvent(document.getElementById('toggleDataSource'), 'click').subscribe(() => {
     useDataSource1 = !useDataSource1;
     console.log('Toggle data source:', useDataSource1 ? 'Data Source 1' : 'Data Source 2');
-    document.getElementById('toggleShare').disabled = !useDataSource1; // Enable share button only for dataSource1
-    document.getElementById('toggleShare').innerHTML = 'Share'; // reset wording
+    document.getElementById('toggleCapture').disabled = !useDataSource1; // Enable share button only for dataSource1
+    document.getElementById('toggleCapture').innerHTML = 'Capture'; // reset wording
+    document.getElementById('toggleDataSource').innerHTML = useDataSource1 ? "Showing Live Data" : "Showing Capture #{num}"; // reset wording
+
     document.getElementById('play').disabled = useDataSource1; // Enable share button only for dataSource2
     document.getElementById('pause').disabled = useDataSource1; // Enable share button only for dataSource2
     if (!useDataSource1) {
         sharingEnabled = false; // Stop sharing when switching to dataSource2
-        updateUsingSharingData(currentIndex);
+        updateUsingCapturingData(currentIndex);
     } else {
         updateChart(dataSource1);
     }
@@ -254,7 +303,7 @@ fromEvent(document.getElementById('play'), 'click').subscribe(() => {
     if (intervalId) clearInterval(intervalId);
     intervalId = setInterval(() => {
         currentIndex = (currentIndex + 1) % dataSource2.getClusterMessages(Msg_p.fromDataView).length;
-        updateUsingSharingData(currentIndex);
+        updateUsingCapturingData(currentIndex);
         document.getElementById('slider').value = currentIndex;
     }, 500);
 });
@@ -264,22 +313,22 @@ fromEvent(document.getElementById('pause'), 'click').subscribe(() => {
     clearInterval(intervalId);
 });
 
-// Share button event
-fromEvent(document.getElementById('toggleShare'), 'click').subscribe(() => {
+// Capture button event
+fromEvent(document.getElementById('toggleCapture'), 'click').subscribe(() => {
     sharingEnabled = !sharingEnabled;
-    document.getElementById('toggleShare').innerHTML = sharingEnabled ? 'Stop' : 'Clear & Share';
+    document.getElementById('toggleCapture').innerHTML = sharingEnabled ? 'Stop' : 'Clear & Capture';
     if (sharingEnabled) {
         dataSource2.clear(); // Clear dataSource2 when starting to share
-        console.log('Sharing enabled: data points from dataSource1 will be copied to dataSource2.');
+        console.log('Capturing enabled: data points from dataSource1 will be copied to dataSource2.');
     } else {
-        console.log('Sharing disabled.');
+        console.log('Capturing disabled.');
     }
 });
 
 // Slider event
 fromEvent(document.getElementById('slider'), 'input').subscribe(event => {
     currentIndex = parseInt(event.target.value);
-    updateUsingSharingData(currentIndex);
+    updateUsingCapturingData(currentIndex);
 });
 
 // Initial chart update
