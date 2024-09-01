@@ -256,11 +256,7 @@ class Msg_p extends ClusterMessage {
         return this.rawBodyDataView().getFloat32(21, true);
     }
     temperature() {
-        try {
-            return this.rawBodyDataView().getFloat32(25, true);
-        } catch (e) {
-            return 28.0;
-        }
+        return this.rawBodyDataView().getFloat32(25, true);
     }
     toString() {
         return `${this.amps()}:${this.volts()}:${this.temperature()}`;

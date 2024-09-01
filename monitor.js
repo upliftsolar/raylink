@@ -295,12 +295,17 @@ fromEvent(document.getElementById('toggleMultiply'), 'click').subscribe(() => {
 */
 
 
-fromEvent(document.getElementById('monitor-graph'), 'click').subscribe(() => {
+fromEvent(document.getElementById('monitor-graph'), 'click').subscribe(showControls);
+function showControls() {
     document.getElementById('capture-controls').classList.remove('hidden');
-});
+}
 
 // Handle toggle data source button click
 function toggleDataSource() {
+    if (dataSource2.size < 10) {
+        alert('No captured data. Click once to capture data, or click and hold to import data.');
+        return;
+    }
     useDataSource1 = !useDataSource1;
     console.log('Toggle data source:', useDataSource1 ? 'Data Source 1' : 'Data Source 2');
     document.getElementById('toggleCapture').disabled = !useDataSource1; // Enable share button only for dataSource1
@@ -309,10 +314,13 @@ function toggleDataSource() {
 
     document.getElementById('play').disabled = useDataSource1; // Enable share button only for dataSource2
     document.getElementById('pause').disabled = useDataSource1; // Enable share button only for dataSource2
+    document.getElementById('slider').value = 0; // Enable share button only for dataSource2
+    document.getElementById('slider').disabled = useDataSource1; // Enable share button only for dataSource2
     if (!useDataSource1) {
         sharingEnabled = false; // Stop sharing when switching to dataSource2
         updateUsingCapturingData(currentIndex);
     } else {
+        doPause();
         updateChart(dataSource1);
     }
 }
@@ -330,9 +338,10 @@ function doPlay() {
 }
 
 // Pause button event
-fromEvent(document.getElementById('pause'), 'click').subscribe(() => {
+fromEvent(document.getElementById('pause'), 'click').subscribe(doPause)
+function doPause() {
     clearInterval(intervalId);
-});
+}
 
 // Capture button event
 fromEvent(document.getElementById('toggleCapture'), 'click').subscribe(() => {
@@ -367,6 +376,7 @@ function handleLongClick() {
 
         navigator.clipboard.readText().then(clipText => {
             dataSource2.fromBase64(clipText);
+            showControls();
             if (useDataSource1) {
                 toggleDataSource();
             } else {
