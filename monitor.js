@@ -87,6 +87,25 @@ class DataSource {
     clear() {
         this.size = 0;
     }
+    // Method to convert the buffer to a base64 string
+    toBase64() {
+        const uint8Array = new Uint8Array(this.buffer.slice(0, this.size)); // Slice the buffer to the size of used data
+        return btoa(String.fromCharCode.apply(null, uint8Array));
+    }
+
+    // Method to load data from a base64 string
+    fromBase64(base64) {
+        const binaryString = atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        this.clear(); // Clear existing data
+        this.expandBuffer(len); // Ensure the buffer is large enough
+        new Uint8Array(this.buffer).set(bytes);
+        this.size = len;
+    }
 }
 
 const middleware1Switch = document.getElementById('middleware1');
@@ -281,7 +300,7 @@ fromEvent(document.getElementById('monitor-graph'), 'click').subscribe(() => {
 });
 
 // Handle toggle data source button click
-fromEvent(document.getElementById('toggleDataSource'), 'click').subscribe(() => {
+function toggleDataSource() {
     useDataSource1 = !useDataSource1;
     console.log('Toggle data source:', useDataSource1 ? 'Data Source 1' : 'Data Source 2');
     document.getElementById('toggleCapture').disabled = !useDataSource1; // Enable share button only for dataSource1
@@ -296,17 +315,19 @@ fromEvent(document.getElementById('toggleDataSource'), 'click').subscribe(() => 
     } else {
         updateChart(dataSource1);
     }
-});
+}
+fromEvent(document.getElementById('toggleDataSource'), 'click').subscribe(toggleDataSource);
 
 // Play button event
-fromEvent(document.getElementById('play'), 'click').subscribe(() => {
+fromEvent(document.getElementById('play'), 'click').subscribe(doPlay);
+function doPlay() {
     if (intervalId) clearInterval(intervalId);
     intervalId = setInterval(() => {
         currentIndex = (currentIndex + 1) % dataSource2.getClusterMessages(Msg_p.fromDataView).length;
         updateUsingCapturingData(currentIndex);
         document.getElementById('slider').value = currentIndex;
     }, 500);
-});
+}
 
 // Pause button event
 fromEvent(document.getElementById('pause'), 'click').subscribe(() => {
@@ -330,6 +351,53 @@ fromEvent(document.getElementById('slider'), 'input').subscribe(event => {
     currentIndex = parseInt(event.target.value);
     updateUsingCapturingData(currentIndex);
 });
+
+// Function to handle long-click event
+function handleLongClick() {
+    const activeDataSource = useDataSource1 ? dataSource1 : dataSource2;
+    const userChoice = prompt("Choose an action: 'copy' to copy data to clipboard, 'paste' to import data from clipboard.");
+    if (userChoice === 'copy') {
+        const base64Data = activeDataSource.toBase64();
+        navigator.clipboard.writeText(base64Data).then(() => {
+            alert('Data has been copied to the clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy data: ', err);
+        });
+    } else if (userChoice === 'paste') {
+
+        navigator.clipboard.readText().then(clipText => {
+            dataSource2.fromBase64(clipText);
+            if (useDataSource1) {
+                toggleDataSource();
+            } else {
+                updateChart(dataSource2);
+            }
+            doPlay();
+            alert('Data has been pasted and imported!');
+        }).catch(err => {
+            console.error('Failed to read data from clipboard: ', err);
+        });
+    } else {
+        alert('Invalid action. Please choose either "copy" or "paste".');
+    }
+}
+
+// Variables for long-click detection
+let clickTimer;
+
+// SVG long-click event setup
+svg.on('mousedown', () => {
+    clickTimer = setTimeout(handleLongClick, 1000); // 1 second for a long-click
+});
+
+svg.on('mouseup', () => {
+    clearTimeout(clickTimer); // Clear the timer if mouse is released before 1 second
+});
+
+svg.on('mouseleave', () => {
+    clearTimeout(clickTimer); // Clear the timer if mouse leaves the SVG area
+});
+
 
 // Initial chart update
 updateChart(dataSource1);
