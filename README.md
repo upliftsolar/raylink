@@ -8,6 +8,12 @@
  http-server -S -C ssl/server.cert -K ssl/server.key
 ```
 
+If you don't have access to an uplift device, try using the 'paste' functionality to import some historical bluetooth data. To do so: copy the following to your clipboard, then open up localhost:<port>/monitor.html, and click-and-hold on the graph at the bottom. Type 'paste' when prompted, and you will see that the contents of your clipboard is available on the timeline.
+
+```bash
+MzMzMzMzAAAAAAAAAAAACLB7Fz7tgABwQbGEPEGxhDymllZBEBxrV0Rdrr9DNLtQQQAA30H//zMzMzMzMwAAAAAAAAAAAAiwfQX14QAAcEGxhDxBsYQ8zvVSQRAca1dEX6i/QzS7UEEAAN9B//8zMzMzMzMAAAAAAAAAAAAIsH4yqfiAAHBBsYQ8QbGEPJMIVUEQHGtXRAAAAAA0u1BBAADfQf//
+```
+
 ## DEVELOPMENT SETUP
 
 ```bash
