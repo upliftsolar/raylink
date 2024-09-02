@@ -265,8 +265,19 @@ function updateChart(dataSource) {
 /*
 BLUETOOTH
 */
-
+//let sinCounterDummyGenerate = 0;
 const bleMiddleware = new BleMiddleware((dataView) => {
+    /*  UNCOMMENT TO GENERATE DUMMY DATA
+    // Modifies real bluetooth inputs, to change the temperature, as dummy data.
+        try {
+            const origTemp = dataView.getFloat32(24 + 25, true);
+            const adder = 3 * Math.sin(sinCounterDummyGenerate);
+            sinCounterDummyGenerate += 5;
+            dataView.setFloat32(24 + 25, origTemp + adder, true);
+        } catch (e) {
+            //DataView
+        }
+    */
     dataSource1.addDataView(dataView);
     if (useDataSource1) {
         updateChart(dataSource1);
