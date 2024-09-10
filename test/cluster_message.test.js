@@ -1,5 +1,5 @@
 import { expect, Assertion } from 'chai';
-import { Msg_p, ClusterMessage, dataViewToHex } from '../uplift/cluster_message.js';
+import { Msg_p, ClusterMessage, dataViewToHex } from '../dashboard/src/assets/js/uplift/cluster_message.js';
 
 // Custom assertion method
 Assertion.addMethod('trimEqual', function (expected) {

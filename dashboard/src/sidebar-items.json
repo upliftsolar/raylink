@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Menu",
+    "isTitle": true
+  },
+  {
+    "name": "Dashboard",
+    "url": "javascript:showPage('home');",
+    "icon": "grid-fill"
+  },
+  {
+    "name": "Help",
+    "key": "error",
+    "url": "javascript:showPage('help');",
+    "icon": "cash"
+  }
+]
