@@ -1,42 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Page</title>
+    <!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+<!-- Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!-- Your custom CSS (should be the last one to load) DO NOT CHANGE -->
+<link rel="stylesheet" href="assets/css/uplift.css">
+
+</head>
 <body class="bg-light">
-    <div class="container py-5">
-        <h1 class="text-center mb-5">Cluster Messages</h1>
 
-        <div class="d-flex justify-content-center mb-4">
-            <button id="connectButton" class="btn btn-primary btn-lg">Choose Uplift Device</button>
+    <!-- Container for all content -->
+    <div class="container py-3">
+        <h2 class="text-center mb-4">Bluetooth Data Visualization</h2>
+
+        <div class="d-flex justify-content-center mb-3">
+            <button id="connectButton" class="btn btn-primary btn-lg">Connect Device</button>
         </div>
 
-        <div id="middlewareControls" class="card p-4">
-            <h2 class="card-title">Middleware Controls</h2>
-            <div class="form-check form-switch mb-3">
-                <input class="form-check-input" type="checkbox" id="middleware1">
-                <label class="form-check-label" for="middleware1">Enable Middleware 1 (p)</label>
+        <!-- Bluetooth Data Visualization Section -->
+        <div class="data-visualization-section">
+
+            <!-- Replace the button with clickable text -->
+            <div class="d-flex flex-column align-items-start">
+                <span id="toggleDataSource" class="live-data-text mb-4">Showing Live Data</span>
+
+                <!-- SVG container for D3 -->
+                <svg id="monitor-graph" width="100%" height="450"></svg>
+                <div id="tooltip" class="tooltip"></div>
             </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="middleware2">
-                <label class="form-check-label" for="middleware2">Enable Middleware 2 (v, not parsed)</label>
+
+            <!-- Capture Controls Section with Icons -->
+            <div id="capture-controls" class="d-flex align-items-start mt-4">
+                <button id="play" class="btn btn-primary mx-2" disabled>
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="pause" class="btn btn-secondary mx-2" disabled>
+                    <i class="fas fa-pause"></i>
+                </button>
+                <button id="toggleCapture" class="btn btn-success mx-2" disabled>
+                    <i class="fas fa-camera"></i>
+                </button>
+                <input type="range" id="slider" min="0" max="99" value="0" step="1" class="form-range mx-2">
             </div>
         </div>
     </div>
-
-    <h1>Bluetooth Data Visualization</h1>
-    <!-- Toggle buttons -->
-    <button id="toggleDataSource">Showing Live Data</button>
-
-
-    <!-- SVG container for D3 -->
-    <svg id='monitor-graph' width="800" height="400"></svg>
-
-    <div id="capture-controls" class="hidden">
-        <button id="play" disabled>Play</button>
-        <button id="pause" disabled>Pause</button>
-        <button id="toggleCapture" disabled>Capture</button>
-        <input type="range" id="slider" min="0" max="99" value="0" step="1">
-    </div>
-
-
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="./monitor.js"></script>
+
+    <!-- JavaScript to maintain functionality of the 'Showing Live Data' text -->
+    <script>
+        document.getElementById('toggleDataSource').addEventListener('click', function() {
+            // Maintain functionality of button (now applied to the text)
+            alert('Toggling live data...');
+            // You can replace this alert with any function or functionality you want to toggle.
+        });
+    </script>
 </body>
+</html>
+
+
+

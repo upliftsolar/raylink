@@ -79,7 +79,7 @@ Simple example using CDN from [jsdelivr.net](https://www.jsdelivr.com/).
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Mazer Admin Dashboard</title>
+    <title>Uplift Solar - upliftsync</title>
 
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/zuramai/mazer@docs/demo/assets/compiled/svg/favicon.svg" type="image/x-icon">
 

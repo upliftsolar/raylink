@@ -217,3 +217,22 @@
         max-height: 0;
     }
 }
+
+.logo {
+    flex-basis: 30%; /* Allow the logo div to take up 30% of the container */
+    max-width: 150px; /* Limit the maximum width */
+    display: flex;
+    justify-content: center; /* Center the logo horizontally */
+    align-items: center; /* Center the logo vertically */
+    overflow: hidden; /* Hide any overflow */
+}
+
+.logo img {
+    width: 100%; /* Set the width to 100% of the container */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: contain; /* Ensure the entire image fits within the container without distortion */
+}
+
+
+
+

@@ -1,0 +1,581 @@
+  <style>
+       /*Styling*/
+       
+    /* Base Styling */
+    .settings-title {
+    color: #000;
+}
+
+    .settings-container {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    .settings-container {
+        width: 100%;
+        margin-left: -15px;
+        padding: 5px;
+        background-color: transparent;
+    }
+
+        /* Search Bar Styling */
+        .search-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border-radius: 50px;
+            border: 1px solid #ddd;
+            width: 250px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background-image: url('search-icon.png'); /* Placeholder for search icon */
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .search-input::placeholder {
+            color: #888;
+        }
+
+        /* Tabs Styling */
+        .tab-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd; /* For sleek line */
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background-color: transparent;
+            color: #6c757d;
+            cursor: pointer;
+            margin-right: 15px;
+            font-size: 16px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+
+        .tab.active {
+            color: #5e5af6;
+            border-bottom: 3px solid #5e5af6;
+        }
+
+        .tab:hover {
+            color: #5e5af6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* General Styling for Sections */
+        .settings-section input[type="text"],
+        .settings-section input[type="tel"],
+        .settings-section textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            background-color: #fff;
+        }
+
+        .settings-section textarea {
+            resize: none;
+        }
+
+        .settings-section button {
+            padding: 10px 20px;
+            background-color: #5e5af6;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .settings-section button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Profile Picture Section */
+        .profile-picture {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .profile-picture button {
+            border-radius: 50px;
+        }
+
+        /* Notification Toggle */
+        .notifications {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .notifications input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-right: 10px;
+        }
+
+         /* Actions Section Styling */
+.settings-section.flex-row {
+    display: block; /* Ensure the "Actions" text is on its own line */
+    margin-bottom: 20px;
+}
+
+.settings-section.flex-row h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px; /* Space between "Actions" and buttons */
+}
+
+.settings-section.flex-row .button-container {
+    display: flex; /* Align buttons side by side */
+    gap: 10px; /* Add spacing between buttons */
+}
+
+.settings-section.flex-row button {
+    padding: 10px 15px;
+    background-color: #5e5af6;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.settings-section.flex-row button:hover {
+    background-color: #333;
+}
+
+
+    </style>
+
+
+    <div class="settings-container">
+        <h1 class="settings-title">Settings</h1>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search settings...">
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-container">
+            <div class="tab active" id="general-tab" onclick="showTab('general')">General</div>
+            <div class="tab" id="contact-tab" onclick="showTab('contact')">Contact</div>
+            <div class="tab" id="account-tab" onclick="showTab('account')">Account</div>
+            <div class="tab" id="inspection-tab" onclick="showTab('inspection')">Inspection</div>
+            <div class="tab" id="admin-tab" onclick="showTab('admin')">Admin</div>
+        </div>
+
+        <div id="general" class="tab-content active">
+           
+        
+            <!-- System Preferences -->
+            <div class="settings-section">
+    
+                <h3>Language:</h3>
+                <select id="language">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                </select>
+            </div>
+        
+            <!-- Notifications -->
+<div class="settings-section">
+    <h3>Notifications</h3>
+    <div class="notification-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label for="email-notif" class="switch">
+            <input type="checkbox" id="email-notif">
+            <span class="slider"></span>
+        </label>
+        <span class="label-text" style="margin-left: 10px;">Enable Email Notifications</span>
+    </div>
+    <div class="notification-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label for="sms-notif" class="switch">
+            <input type="checkbox" id="sms-notif">
+            <span class="slider"></span>
+        </label>
+        <span class="label-text" style="margin-left: 10px;">Enable SMS Notifications</span>
+    </div>
+</div>
+
+<!-- Privacy Settings -->
+<div class="settings-section">
+    <h3>Privacy</h3>
+    <div class="notification-item" style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label for="privacy-tracking" class="switch">
+            <input type="checkbox" id="privacy-tracking">
+            <span class="slider"></span>
+        </label>
+        <span class="label-text" style="margin-left: 10px;">Allow Tracking of Usage Data</span>
+    </div>
+    <div class="notification-item" style="display: flex; align-items: center;">
+        <label for="enable-cookies" class="switch">
+            <input type="checkbox" id="enable-cookies">
+            <span class="slider"></span>
+        </label>
+        <span class="label-text" style="margin-left: 10px;">Enable Cookies</span>
+    </div>
+</div>
+
+        
+            <!-- Actions -->
+<div class="settings-section flex-row">
+    <h2>Actions</h2>
+    <button id="echoButton">ECHO</button>
+    <button id="firmwareButton">Update Firmware</button>
+    <button id="resetButton">Reset to Default</button>
+    </div>
+</div>
+
+         <!-- Switch CSS -->
+        <style>
+            
+            /* Toggle Switch Styles */
+            .switch {
+                display: inline-block;
+                position: relative;
+                width: 50px;
+                height: 25px;
+                margin-right: 10px;
+            }
+        
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+        
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                transition: 0.4s;
+                border-radius: 25px;
+            }
+        
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 17px;
+                width: 17px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: 0.4s;
+                border-radius: 50%;
+            }
+        
+            input:checked + .slider {
+                background-color: #5e5af6;
+            }
+        
+            input:checked + .slider:before {
+                transform: translateX(25px);
+            }
+        
+            button {
+                padding: 10px 15px;
+                background-color: #5e5af6;
+                color: white;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                margin-right: 10px;
+                transition: background-color 0.3s ease;
+            }
+        
+            button:hover {
+                background-color: #333;
+            }
+        
+            /* Responsive Styling */
+            @media (max-width: 768px) {
+                .flex-row {
+                    flex-direction: column;
+                }
+        
+                label, button {
+                    margin-bottom: 10px;
+                }
+            }
+        </style>
+        
+    
+        <!-- Account Settings -->
+<div id="account" class="tab-content">
+    <h2>Your Profile</h2>
+
+    <div class="settings-section">
+        <!-- Username -->
+        <label for="username">Username</label>
+        <input type="text" id="username" value="Username" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
+
+        <!-- Phone Number -->
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" value="Phone" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
+
+        <!-- Profile Picture Section -->
+        <div class="profile-picture" style="display: flex; align-items: center; margin-bottom: 20px;">
+            <img src="/src/layouts/round.avif" alt="Profile Picture" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 15px;">
+            <button style="padding: 10px 20px; background-color: #5e5af6; color: white; border: none; border-radius: 50px; margin-right: 10px; cursor: pointer;">Edit</button>
+            <button style="padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 50px; cursor: pointer;">Delete</button>
+        </div>
+
+        <!-- Email -->
+        <label for="email">Email Address</label>
+        <input type="email" id="email" value="user@example.com" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
+
+        <!-- Password Reset -->
+        <label for="password">Change Password</label>
+        <input type="password" id="password" placeholder="Enter new password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
+        <input type="password" id="confirm-password" placeholder="Confirm new password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
+        <button style="padding: 10px 20px; background-color: #5e5af6; color: white; border: none; border-radius: 50px; cursor: pointer; margin-bottom: 20px;">Update Password</button>
+
+        <!-- Biography -->
+        <label for="bio">Biography</label>
+        <textarea id="bio" rows="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; resize: none; margin-bottom: 20px;">Hi there! 👋 I'm X-AE-A-19, an AI enthusiast...</textarea>
+
+        <!-- Two-Factor Authentication -->
+        <div class="two-factor-auth" style="margin-bottom: 30px;">
+            <h3>Two-Factor Authentication (2FA)</h3>
+            <p>Enable 2FA to secure your account. You'll need to use a code from your authentication app to log in.</p>
+            <div class="two-factor-toggle" style="display: flex; align-items: center;">
+                <label for="2fa" class="switch" style="margin-right: 10px;">
+                    <input type="checkbox" id="2fa">
+                    <span class="slider"></span>
+                </label>
+                <span>Enable Two-Factor Authentication</span>
+            </div>
+        </div>
+
+        <!-- Account Deactivation -->
+        <div class="deactivation-section">
+            <h3>Deactivate Account</h3>
+            <p>Deactivating your account will make it inaccessible. You can reactivate it by logging back in.</p>
+            <button style="padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 50px; cursor: pointer;">Deactivate Account</button>
+        </div>
+    </div>
+</div>
+
+
+        <!-- Contact Section Tab in Settings-->
+        <div id="contact" class="tab-content">
+        
+            <!-- Support Chat Section -->
+            <div class="settings-section">
+                <h3>Support Chat</h3>
+                <p>If you need immediate assistance, start a chat with our support team below.</p>
+                <div class="chat-bar" style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <textarea id="chatMessage" rows="2" style="flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; resize: none;" placeholder="Type your message here..."></textarea>
+                    <button id="sendChat" style="padding: 10px 20px; background-color: #5e5af6; color: white; border: none; border-radius: 50px; margin-left: 10px; cursor: pointer;">Send</button>
+                </div>
+            </div>
+        
+            <!-- Contact Email Section -->
+            <div class="settings-section">
+                <h3>Contact Us by Email</h3>
+                <p>If you'd prefer to reach us by email, fill out the form below and we'll get back to you shortly.</p>
+                <form id="contactForm" style="margin-top: 15px;">
+                    <label for="contactName">Your Name:</label>
+                    <input type="text" id="contactName" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;" placeholder="Enter your name">
+        
+                    <label for="contactEmail">Your Email:</label>
+                    <input type="email" id="contactEmail" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;" placeholder="Enter your email">
+        
+                    <label for="contactMessage">Message:</label>
+                    <textarea id="contactMessage" rows="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; resize: none;" placeholder="Write your message here..."></textarea>
+        
+                    <button type="submit" style="padding: 10px 20px; background-color: #5e5af6; color: white; border: none; border-radius: 50px; cursor: pointer; margin-top: 10px;">Send Email</button>
+                </form>
+            </div>
+        </div>
+        
+       <!-- Inspection Settings -->
+<div id="inspection" class="tab-content">
+    <h2>Inspection Settings</h2>
+
+    <div class="settings-section" style="margin-bottom: 30px;">
+        <p>Check the current status of your solar panels.</p>
+        <div style="margin-bottom: 20px;">
+            <label for="panel-status">Status:</label>
+            <select id="panel-status" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="maintenance">Under Maintenance</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="settings-section" style="margin-bottom: 30px;">
+        <h3>Voltage and Current Levels</h3>
+        <p>Set thresholds for voltage and current inspections.</p>
+        <div style="margin-bottom: 20px;">
+            <label for="voltage-threshold">Voltage Threshold (V):</label>
+            <input type="number" id="voltage-threshold" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;" placeholder="Enter voltage threshold">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label for="current-threshold">Current Threshold (A):</label>
+            <input type="number" id="current-threshold" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;" placeholder="Enter current threshold">
+        </div>
+    </div>
+
+    <div class="settings-section" style="margin-bottom: 30px;">
+        <h3>Inspection Frequency</h3>
+        <p>Set how often inspections should be performed on your solar panel system.</p>
+        <div style="margin-bottom: 20px;">
+            <label for="inspection-frequency">Frequency (days):</label>
+            <input type="number" id="inspection-frequency" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;" placeholder="Enter the number of days between inspections">
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <h3>Notifications</h3>
+        <p>Receive notifications when inspections are due or when thresholds are exceeded.</p>
+        <div class="notification-item" style="display: flex; align-items: center; margin-bottom: 20px;">
+            <label for="email-notif" class="switch" style="margin-right: 10px;">
+                <input type="checkbox" id="email-notif">
+                <span class="slider"></span>
+            </label>
+            <span class="label-text">Enable Email Notifications</span>
+        </div>
+        <div class="notification-item" style="display: flex; align-items: center;">
+            <label for="sms-notif" class="switch" style="margin-right: 10px;">
+                <input type="checkbox" id="sms-notif">
+                <span class="slider"></span>
+            </label>
+            <span class="label-text">Enable SMS Notifications</span>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Tab Content -->
+<div id="admin" class="tab-content">
+    <h2>Admin Settings</h2>
+    <p>Admin-specific settings go here.</p>
+</div>
+
+</div>
+
+<script>
+    // Function to show the correct tab
+    function showTab(tabName) {
+        var contents = document.querySelectorAll('.tab-content');
+        contents.forEach(function(content) {
+            content.classList.remove('active');
+            content.style.display = 'none'; // Hide all tab contents
+        });
+
+        var tabs = document.querySelectorAll('.tab');
+        tabs.forEach(function(tab) {
+            tab.classList.remove('active');
+        });
+
+        // Show the selected tab and make it active
+        var activeTabContent = document.getElementById(tabName);
+        activeTabContent.classList.add('active');
+        activeTabContent.style.display = 'block'; // Make the selected tab visible
+        document.getElementById(tabName + '-tab').classList.add('active');
+
+        // Reset visibility of all sections in the active tab
+        var sections = activeTabContent.querySelectorAll('.settings-section');
+        sections.forEach(function(section) {
+            section.style.display = 'block';  // Show all sections in the active tab
+        });
+    }
+
+    // Show General tab by default
+    showTab('general');
+
+    // Function to handle search with exact tab and section match
+    function searchSettings() {
+        var input = document.querySelector('.search-input').value.toLowerCase().trim();
+        var found = false;
+
+        // Search in tab names first
+        var tabs = document.querySelectorAll('.tab');
+        tabs.forEach(function(tab) {
+            var tabName = tab.id.replace('-tab', '').toLowerCase();
+            if (input.length > 1 && tabName === input) {
+                showTab(tabName); // If tab name matches exactly, show that tab
+                found = true;
+            }
+        });
+
+        if (!found) {
+            // If no exact tab name match, search within tab sections
+            var allTabs = document.querySelectorAll('.tab-content');
+            allTabs.forEach(function(tabContent) {
+                var sections = tabContent.querySelectorAll('.settings-section');
+                var tabName = tabContent.id;
+                var tabHasMatch = false;
+
+                sections.forEach(function(section) {
+                    var sectionText = section.innerText.toLowerCase();
+
+                    if (sectionText.includes(input) && input.length > 1) {
+                        section.style.display = 'block';  // Show matching sections
+                        tabHasMatch = true;
+                        found = true;
+                    } else {
+                        section.style.display = 'none';  // Hide non-matching sections
+                    }
+                });
+
+                // If a match is found within a section, show that tab
+                if (tabHasMatch) {
+                    showTab(tabName);
+                }
+            });
+        }
+
+        if (!found && input.length > 0) {
+            console.log("No results found");
+        } else if (input.length === 0) {
+            // If input is cleared, reset to the default tab
+            showTab('general');
+        }
+    }
+
+    // Event listener for search input
+    document.querySelector('.search-input').addEventListener('input', searchSettings);
+</script>

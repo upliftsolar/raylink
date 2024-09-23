@@ -166,10 +166,11 @@ middleware2Switch.addEventListener('change', (event) => {
 });
 
 const svg = d3.select("svg");
-const margin = { top: 20, right: 100, bottom: 400, left: 50 };
+const margin = { top: 10, right: 100, bottom: 80, left: 50 };
 const width = +svg.attr("width");
 const height = +svg.attr("height");
 //const height = 200;
+
 
 // Define scales
 const x = d3.scaleLinear().range([0, width]);
@@ -190,6 +191,7 @@ const line = d3.line()
     }); // Use float32 value for y
 
 const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
 
 // Initialize data arrays for two data sources
 const dataSource1 = new DataSource(1024, "steelblue");
@@ -217,7 +219,7 @@ const xAxis = g.append("g")
 const yAxis = g.append("g");
 
 
-let multiplyOdd = false;
+
 let useDataSource1 = true;
 let currentIndex = 0;
 let intervalId;
@@ -418,7 +420,6 @@ svg.on('mouseup', () => {
 svg.on('mouseleave', () => {
     clearTimeout(clickTimer); // Clear the timer if mouse leaves the SVG area
 });
-
 
 // Initial chart update
 updateChart(dataSource1);

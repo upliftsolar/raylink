@@ -4,14 +4,21 @@
     "isTitle": true
   },
   {
-    "name": "Dashboard",
+    "name": "Home",
     "url": "javascript:showPage('home');",
-    "icon": "grid-fill"
+    "icon": "house-fill"
   },
   {
-    "name": "Help",
+    
+    "name": "Dashboard",
     "key": "error",
     "url": "javascript:showPage('help');",
-    "icon": "cash"
+    "icon": "speedometer2"
+  },
+  {
+    "name": "Settings",
+    "key": "error",
+    "url": "javascript:showPage('settings');",
+    "icon": "gear-fill"
   }
 ]
