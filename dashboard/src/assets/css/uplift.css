@@ -35,15 +35,6 @@ h1, h4 {
 }
 
 /* Styling the SVG graph */
-#monitor-graph, #solar-panel-graph {
-  width: 100%;
-  max-width: 800px;
-  height: 400;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(185, 170, 170, 0.1);
-  border: 1px solid #ddd;
-}
 
 .live-data-text {
   color: #6c63ff;
@@ -82,10 +73,6 @@ h1, h4 {
 
 /* Media query for responsiveness */
 @media (max-width: 1024px) {
-  #monitor-graph, #solar-panel-graph {
-    width: 100%;
-    height: 300px;
-  }
   #toggleDataSource {
     padding: 10px 20px;
   }

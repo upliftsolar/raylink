@@ -165,12 +165,36 @@ middleware2Switch.addEventListener('change', (event) => {
     }
 });
 
+//D3 Graph Starts Here
 const svg = d3.select("svg");
-const margin = { top: 10, right: 100, bottom: 80, left: 50 };
-const width = +svg.attr("width");
-const height = +svg.attr("height");
-//const height = 200;
 
+// Tooltip DIV
+const tooltip = d3.select("tooltip");
+
+// Define the gradient
+const gradient = svg.append("defs")
+  .append("linearGradient")
+  .attr("id", "line-gradient")
+  .attr("x1", "0%")
+  .attr("y1", "0%")
+  .attr("x2", "100%")
+  .attr("y2", "0%");
+
+// Add gradient colors
+gradient.append("stop")
+  .attr("offset", "0%")
+  .attr("stop-color", "blue");
+
+gradient.append("stop")
+  .attr("offset", "100%")
+  .attr("stop-color", "purple");
+
+  
+
+const margin = { top: 20, right: 100, bottom: 50, left: 50 };
+const width = +svg.attr("width") - margin.left - margin.right;
+const height = +svg.attr("height") - margin.top - margin.bottom;
+//const height = 200;
 
 // Define scales
 const x = d3.scaleLinear().range([0, width]);
@@ -179,19 +203,19 @@ const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
 
 // Define line generator
 const line = d3.line()
-    .x(d => x(d.getSeconds())) // Use time from data point for x
-    .y(d => {
-        try {
-            return y(d.temperature())
-        } catch (e) {
-            console.log('filter not working for this graph.')
-            return 0;
-        }
-
-    }); // Use float32 value for y
+  .curve(d3.curveBasis)  // Add smoothing to the line
+  .x(d => x(d.getSeconds()))
+  .y(d => {
+      try {
+          return y(d.temperature());
+      } catch (e) {
+          console.log('filter not working for this graph.');
+          return 0;
+      }
+  });
+ // Use float32 value for y
 
 const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-
 
 // Initialize data arrays for two data sources
 const dataSource1 = new DataSource(1024, "steelblue");
@@ -219,7 +243,7 @@ const xAxis = g.append("g")
 const yAxis = g.append("g");
 
 
-
+let multiplyOdd = false;
 let useDataSource1 = true;
 let currentIndex = 0;
 let intervalId;
@@ -228,10 +252,10 @@ let sharingEnabled = false;
 // Function to update chart
 function updateChart(dataSource) {
     const data = dataSource.getClusterMessages(Msg_p.fromDataView);
-    // Update x domain based on the current data
-    //x.domain(d3.extent(data, d => {
-    //    return d.getSeconds();
-    //}));
+    // Update x domain based on the current data (Uncommented this now it shows the X xis :))!!!
+    x.domain(d3.extent(data, d => {
+     return d.getSeconds();
+    }));
 
     if (useDataSource1) {
         const now = Date.now();
@@ -255,8 +279,10 @@ function updateChart(dataSource) {
 
     // Update line path
     path.datum(data)
-        .attr("d", line)
-        .attr("stroke", dataSource.getColor());
+  .attr("d", line)
+  .attr("stroke", "url(#line-gradient)")  // Apply the gradient to the stroke
+  .attr("stroke-width", 3);  // Thicker line for a modern look
+
 
     // Update axes
     xAxis.call(d3.axisBottom(x).ticks(5).tickFormat(d => (d - Date.now()) / 1000));
@@ -420,6 +446,7 @@ svg.on('mouseup', () => {
 svg.on('mouseleave', () => {
     clearTimeout(clickTimer); // Clear the timer if mouse leaves the SVG area
 });
+
 
 // Initial chart update
 updateChart(dataSource1);
