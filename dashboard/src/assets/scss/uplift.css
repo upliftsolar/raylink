@@ -1,0 +1,83 @@
+/* Custom styles for the monitor page */
+body.monitor-page {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("path/to/background-image.jpg") no-repeat center center;
+  background-size: cover;
+  font-family: "Poppins", sans-serif;
+  color: #ffffff;
+}
+
+.index-title {
+  color: black !important; /* Ensure the color change is applied */
+  font-size: 32px; /* Adjust font size if needed */
+}
+
+h1, h4 {
+  margin-top: 0;
+  font-family: "Poppins", sans-serif;
+  color: #212529;
+}
+
+/* Button Styling for 'Connect Device' */
+#connectButton {
+  background-color: #6c63ff;
+  border: none;
+  color: white;
+  padding: 11px 20px;
+  font-size: 17px;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#connectButton:hover {
+  background-color: #5a54d6;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.live-data-text {
+  color: #6c63ff;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.live-data-text:hover {
+  color: #6a6977;
+}
+
+/* Play, pause, and capture buttons */
+#play, #pause, #toggleCapture {
+  background-color: #6c63ff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 25px;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+#play:hover, #pause:hover, #toggleCapture:hover {
+  background-color: #5a54d6;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Slider styling for capture controls */
+#slider {
+  width: 100%;
+  margin-top: 10px;
+  accent-color: #6c63ff;
+}
+
+#toggleDataSource {
+  padding: 10px 20px;
+}
+
+#capture-controls button {
+  padding: 8px 15px;
+  font-size: 14px;
+}
+
+#slider {
+  width: 100%;
+}/*# sourceMappingURL=uplift.css.map */

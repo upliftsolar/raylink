@@ -5,14 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor Page</title>
     <!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Your custom CSS (should be the last one to load) DO NOT CHANGE -->
+    <link rel="stylesheet" href="assets/css/uplift.css">
 
-<!-- Font Awesome CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Move everything below the Connect button slightly down */
+        .content-container {
+            margin-top: 80px; /* Adjust this to move everything down */
+        }
 
-<!-- Your custom CSS (should be the last one to load) DO NOT CHANGE -->
-<link rel="stylesheet" href="assets/css/uplift.css">
+        /* Center the entire graph container */
+        #graph-container {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            margin: 0 auto;
+            padding-top: 0;
+        }
 
+        /* Add some spacing for "Showing Live Data" and "Download as SVG" */
+        #toggleDataSource {
+            position: absolute;
+            top: -10px; /* Slight space above the graph */
+            left: 30px;
+            color: blue;
+        }
+
+        #downloadSvgBtn {
+            position: absolute;
+            top: -10px; /* Slight space above the graph */
+            right: 30px;
+        }
+
+        /* Ensure SVG does not overlap */
+        svg {
+            margin-top: 20px; /* Reduce the space between the graph and capture controls */
+        }
+
+        /* Align capture controls directly below the graph */
+        #capture-controls {
+            margin-top: 10px; /* Maintain consistency without too much spacing */
+            display: flex;
+            justify-content: flex-start;
+            max-width: 800px;
+            margin-left: 200px; /* Align the play button with y-axis */
+        }
+
+        /* Make buttons spaced evenly */
+        #capture-controls button, #capture-controls input {
+            margin: 0 10px;
+        }
+
+        /* Ensure page fits within screen */
+        body {
+            overflow-y: hidden; /* Prevent vertical scroll */
+        }
+    </style>
 </head>
 <body class="bg-light">
 
@@ -20,36 +73,38 @@
     <div class="container py-3">
         <h2 class="text-center mb-4">Bluetooth Data Visualization</h2>
 
-        <div class="d-flex justify-content-center mb-3">
-            <button id="connectButton" class="btn btn-primary btn-lg">Connect Device</button>
+        <!-- Row for the Connect button -->
+        <div class="row mb-3">
+            <div class="col text-center">
+                <button id="connectButton" class="btn btn-primary btn-lg">Connect Device</button>
+            </div>
         </div>
 
-        <!-- Bluetooth Data Visualization Section -->
-        <div class="data-visualization-section">
-
-            <!-- Replace the button with clickable text -->
-            <div class="d-flex flex-column align-items-start">
-                <span id="toggleDataSource" class="live-data-text mb-4">Showing Live Data</span>
+        <!-- Container for SVG Graph with positioned elements inside -->
+        <div class="content-container">
+            <div id="graph-container">
+                <!-- Text aligned to y-axis -->
+                <span id="toggleDataSource" class="live-data-text">Showing Live Data</span>
 
                 <!-- SVG container for D3 -->
-                 <!-- Adding modern and cute tooltip-->
-                 <div id="tooltip" style="position: absolute; visibility: hidden; background-color: rgba(0, 0, 0, 0.8); color: white; padding: 8px; border-radius: 6px; font-size: 12px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); pointer-events: none; transition: all 0.3s ease;"></div>
-                <svg id='monitor-graph' width="800" height="400"></svg>
-                <div id="tooltip" class="tooltip"></div>
+                <svg id="monitor-graph" width="800" height="400"></svg>
+
+                <!-- Download SVG button aligned to the right, inside the graph -->
+                <button id="downloadSvgBtn" class="btn btn-success">Download as SVG</button>
             </div>
 
-            <!-- Capture Controls Section with Icons -->
-            <div id="capture-controls" class="d-flex align-items-start mt-4">
-                <button id="play" class="btn btn-primary mx-2" disabled>
+            <!-- Capture Controls Section with Icons, aligned with the graph -->
+            <div id="capture-controls">
+                <button id="play" class="btn btn-primary" disabled>
                     <i class="fas fa-play"></i>
                 </button>
-                <button id="pause" class="btn btn-secondary mx-2" disabled>
+                <button id="pause" class="btn btn-secondary" disabled>
                     <i class="fas fa-pause"></i>
                 </button>
-                <button id="toggleCapture" class="btn btn-success mx-2" disabled>
+                <button id="toggleCapture" class="btn btn-success" disabled>
                     <i class="fas fa-camera"></i>
                 </button>
-                <input type="range" id="slider" min="0" max="99" value="0" step="1" class="form-range mx-2">
+                <input type="range" id="slider" min="0" max="99" value="0" step="1" class="form-range">
             </div>
         </div>
     </div>
@@ -61,13 +116,8 @@
     <!-- JavaScript to maintain functionality of the 'Showing Live Data' text -->
     <script>
         document.getElementById('toggleDataSource').addEventListener('click', function() {
-            // Maintain functionality of button (now applied to the text)
             alert('Toggling live data...');
-            // You can replace this alert with any function or functionality you want to toggle.
         });
     </script>
 </body>
 </html>
-
-
-

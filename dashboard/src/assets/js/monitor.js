@@ -165,11 +165,23 @@ middleware2Switch.addEventListener('change', (event) => {
     }
 });
 
-//D3 Graph Starts Here
+//*******D3 Graph Starts Here*********
 const svg = d3.select("svg");
 
 // Tooltip DIV
-const tooltip = d3.select("tooltip");
+const tooltip = d3.select("body").append("div")
+    .attr("id", "tooltip")
+    .style("position", "absolute")
+    .style("visibility", "hidden")
+    .style("background-color", "rgba(0, 0, 0, 0.7)")
+    .style("color", "white")
+    .style("padding", "8px")
+    .style("border-radius", "6px")
+    .style("font-size", "12px")
+    .style("box-shadow", "0px 4px 10px rgba(0, 0, 0, 0.2)")
+    .style("pointer-events", "none")
+    .style("transition", "all 0.3s ease");
+
 
 // Define the gradient
 const gradient = svg.append("defs")
@@ -216,6 +228,15 @@ const line = d3.line()
  // Use float32 value for y
 
 const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Create a focus circle that follows the mouse along the line
+const focus = g.append("circle")
+    .attr("r", 6)
+    .attr("fill", "yellow")
+    .attr("stroke", "white")
+    .attr("stroke-width", 2)
+    .style("visibility", "hidden");  // Initially hidden
+
 
 // Initialize data arrays for two data sources
 const dataSource1 = new DataSource(1024, "steelblue");
@@ -287,6 +308,34 @@ function updateChart(dataSource) {
     // Update axes
     xAxis.call(d3.axisBottom(x).ticks(5).tickFormat(d => (d - Date.now()) / 1000));
     yAxis.call(d3.axisLeft(y));
+
+    // Mousemove event to show tooltip and move focus circle
+svg.on("mousemove", function(event) {
+    const [mouseX] = d3.pointer(event, this);  // Get mouse x position relative to SVG
+    const x0 = x.invert(mouseX);  // Convert mouseX to data (time)
+    const i = d3.bisector(d => d.getSeconds()).left(data, x0);  // Find the closest data point
+
+    const d0 = data[i - 1];
+    const d1 = data[i];
+    const d = x0 - d0.getSeconds() > d1.getSeconds() - x0 ? d1 : d0;  // Get closest data point on the line
+
+    // Move the focus circle to the correct x, y position
+    focus.attr("cx", x(d.getSeconds()))
+         .attr("cy", y(d.temperature()))
+         .style("visibility", "visible");
+
+    // Update and show tooltip with relevant information
+    tooltip.html(`Temperature: ${d.temperature()}<br>Time: ${d.getSeconds()}s`)
+           .style("top", (event.pageY - 40) + "px")
+           .style("left", (event.pageX + 10) + "px")
+           .style("visibility", "visible");
+})
+.on("mouseout", function() {
+    // Hide the focus circle and tooltip when the mouse leaves the graph
+    focus.style("visibility", "hidden");
+    tooltip.style("visibility", "hidden");
+});
+
 }
 
 // Data stream for data source 1 (real-time data)
@@ -332,6 +381,23 @@ fromEvent(document.getElementById('toggleMultiply'), 'click').subscribe(() => {
     console.log('Toggle multiply odd messages:', multiplyOdd);
 });
 */
+
+// Download SVG functionality
+function downloadSVG() {
+    const svg = document.getElementById("monitor-graph");
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = svgUrl;
+    downloadLink.download = "monitor-graph.svg";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+
+// Attach download button functionality
+document.getElementById("downloadSvgBtn").addEventListener("click", downloadSVG);
 
 
 fromEvent(document.getElementById('monitor-graph'), 'click').subscribe(showControls);

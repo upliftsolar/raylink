@@ -1,0 +1,155 @@
+<svg id="chart" width="900" height="450"></svg>
+
+<style>
+    /* Dark background and modern styling */
+    body {
+        background-color: #121212; /* Dark black background */
+        color: white;
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Styling the line and axis */
+    .line {
+        fill: none;
+        stroke-width: 4px;
+        stroke: url(#line-gradient); /* Gradient for the line */
+    }
+
+    .axis path, .axis line {
+        stroke: #333; /* Subtle gridline color */
+    }
+
+    .axis text {
+        fill: #8b8b8b; /* Subtle axis label color */
+        font-size: 12px;
+    }
+
+    /* Tooltip Styling */
+    .tooltip {
+        background-color: rgba(0, 0, 0, 0.85);
+        color: #ffffff;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Soft shadow */
+        position: absolute;
+        pointer-events: none;
+        font-size: 13px;
+        font-family: 'Arial';
+        opacity: 0.95;
+    }
+
+    /* Tooltip Content */
+    .tooltip-content {
+        font-size: 14px;
+        font-weight: bold;
+    }
+</style>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+    // Sample data for the graph (replace with your actual data)
+    const data = [
+        { date: "2023-03-16", value: 10823 },
+        { date: "2023-03-18", value: 12000 },
+        { date: "2023-03-20", value: 9320 },
+        { date: "2023-03-22", value: 10500 },
+        { date: "2023-03-24", value: 14560 },
+        { date: "2023-03-26", value: 9000 },
+        { date: "2023-03-28", value: 12300 },
+        { date: "2023-04-03", value: 18432 },
+        { date: "2023-04-10", value: 17000 }
+    ];
+
+    const parseDate = d3.timeParse("%Y-%m-%d");
+    data.forEach(d => d.date = parseDate(d.date));
+
+    const width = 900;
+    const height = 450;
+    const margin = { top: 50, right: 30, bottom: 50, left: 50 };
+
+    const svg = d3.select("#chart")
+        .attr("width", width)
+        .attr("height", height);
+
+    // Define scales for X and Y axes
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(data, d => d.date))
+        .range([margin.left, width - margin.right]);
+
+    const yScale = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.value)])
+        .range([height - margin.bottom, margin.top]);
+
+    // Create the axes
+    svg.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%d %b")).ticks(6))
+        .attr("class", "axis");
+
+    svg.append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(yScale).ticks(5))
+        .attr("class", "axis");
+
+    // Define the line generator with smooth curve
+    const line = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d.value))
+        .curve(d3.curveMonotoneX);
+
+    // Define the gradient for the line
+    const gradient = svg.append("defs")
+        .append("linearGradient")
+        .attr("id", "line-gradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%");
+
+    gradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#2459FF");  /* Dark blue */
+
+    gradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#9400D3");  /* Dark purple */
+
+    // Append the line to the SVG
+    svg.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
+
+    // Tooltip element for interactivity
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip hidden");
+
+    // Data points as small circles
+    svg.selectAll(".circle-point")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("class", "circle-point")
+        .attr("cx", d => xScale(d.date))
+        .attr("cy", d => yScale(d.value))
+        .attr("r", 6)  /* Slightly larger circles */
+        .attr("fill", "#2459FF")  /* Matching the blue */
+        .attr("stroke", "#fff")  /* White stroke */
+        .attr("stroke-width", 2)
+        .on("mouseover", function(event, d) {
+            tooltip.classed("hidden", false)
+                .html(`<div class="tooltip-content">
+                    <strong>${d3.timeFormat("%d %B, %Y")(d.date)}</strong><br>Value: ${d3.format(",")(d.value)}
+                </div>`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 20) + "px");
+        })
+        .on("mouseout", function() {
+            tooltip.classed("hidden", true);
+        })
+        .on("mousemove", function(event) {
+            tooltip.style("left", (event.pageX + 10) + "px")
+                   .style("top", (event.pageY - 20) + "px");
+        });
+</script>
