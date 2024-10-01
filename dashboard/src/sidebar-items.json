@@ -20,11 +20,6 @@
     "key": "error",
     "url": "javascript:showPage('settings');",
     "icon": "gear-fill"
-  },
-  {
-    "name": "Profile",
-    "key": "error",
-    "url": "javascript:showPage('profile');",
-    "icon": "house-fill"
   }
+  
 ]

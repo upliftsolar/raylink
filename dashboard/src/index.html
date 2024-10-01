@@ -5,11 +5,9 @@
 
 {% block styles %}
 <link rel="stylesheet" href="/assets/scss/iconly.scss">
-<style>
-    .hidden {
-        display: none;
-    }
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
+<style>
     .page {
         display: none;
     }
@@ -17,6 +15,11 @@
     .page.active {
         display: block;
     }
+    html, body {
+    
+    overflow: auto;
+}
+
 </style>
 {% endblock %}
 
@@ -32,79 +35,81 @@
 </div>
 
 <div id="home" class="page active">
-    <h1 class="index-title">Home</h1>
-    <p>Here you can see graphs.</p>
-
+    
     <div class="page-heading">
-        <h3>Profile Statistics</h3>
+        <h3>Solar Energy Statistics</h3>
     </div>
     <div class="page-content">
         <section class="row">
             <div class="col-12 col-lg-9">
                 <div class="row">
+                    <!-- Solar Energy Generated -->
                     <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
                                         <div class="stats-icon purple mb-2">
-                                            <i class="iconly-boldShow"></i>
+                                            <i class="iconly-boldActivity"></i> <!-- Use Activity icon for energy -->
                                         </div>
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Profile Views</h6>
-                                        <h6 class="font-extrabold mb-0">112.000</h6>
+                                        <h6 class="text-muted font-semibold">Solar Energy</h6>
+                                        <h6 class="font-extrabold mb-0">112.000 kWh</h6>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Energy Consumed -->
                     <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
                                         <div class="stats-icon blue mb-2">
-                                            <i class="iconly-boldProfile"></i>
+                                            <i class="iconly-boldHome"></i> <!-- Use Home icon for energy consumption -->
                                         </div>
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Followers</h6>
-                                        <h6 class="font-extrabold mb-0">183.000</h6>
+                                        <h6 class="text-muted font-semibold">Energy Used</h6>
+                                        <h6 class="font-extrabold mb-0">183.000 kWh</h6>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Battery Status -->
                     <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
                                         <div class="stats-icon green mb-2">
-                                            <i class="iconly-boldAdd-User"></i>
+                                            <span class="material-icons-round" style="color: white; font-size: 30px ; ">battery_charging_full</span>
                                         </div>
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Following</h6>
-                                        <h6 class="font-extrabold mb-0">80.000</h6>
+                                        <h6 class="text-muted font-semibold">Battery Status</h6>
+                                        <h6 class="font-extrabold mb-0">80%</h6>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Grid Backup -->
                     <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
                                         <div class="stats-icon red mb-2">
-                                            <i class="iconly-boldBookmark"></i>
+                                            <span class="material-icons-round" style="color: white; font-size: 30px;">power</span> <!-- Option 1 -->
                                         </div>
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Saved Post</h6>
-                                        <h6 class="font-extrabold mb-0">112</h6>
+                                        <h6 class="text-muted font-semibold">Grid Backup</h6>
+                                        <h6 class="font-extrabold mb-0">30%</h6>
                                     </div>
                                 </div>
                             </div>
@@ -112,22 +117,25 @@
                     </div>
                 </div>
                 <div class="row">
+                    <!-- Solar Power Graph -->
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Profile Visit</h4>
+                                <h4>Solar Panel Bluetooth Data</h4>
                             </div>
                             <div class="card-body">
-                                <div id="chart-profile-visit"></div>
+                                <svg id="solar-power-graph" width="800" height="400"></svg> <!-- This SVG element will be used by D3.js -->
+
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
+                    <!-- Regional Power Distribution -->
                     <div class="col-12 col-xl-4">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Profile Visit</h4>
+                                <h4>Power Distribution by Region</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -142,7 +150,7 @@
                                         </div>
                                     </div>
                                     <div class="col-5">
-                                        <h5 class="mb-0 text-end">862</h5>
+                                        <h5 class="mb-0 text-end">862 kWh</h5>
                                     </div>
                                     <div class="col-12">
                                         <div id="chart-europe"></div>
@@ -160,7 +168,7 @@
                                         </div>
                                     </div>
                                     <div class="col-5">
-                                        <h5 class="mb-0 text-end">375</h5>
+                                        <h5 class="mb-0 text-end">375 kWh</h5>
                                     </div>
                                     <div class="col-12">
                                         <div id="chart-america"></div>
@@ -178,7 +186,7 @@
                                         </div>
                                     </div>
                                     <div class="col-5">
-                                        <h5 class="mb-0 text-end">625</h5>
+                                        <h5 class="mb-0 text-end">625 kWh</h5>
                                     </div>
                                     <div class="col-12">
                                         <div id="chart-india"></div>
@@ -196,7 +204,7 @@
                                         </div>
                                     </div>
                                     <div class="col-5">
-                                        <h5 class="mb-0 text-end">1025</h5>
+                                        <h5 class="mb-0 text-end">1025 kWh</h5>
                                     </div>
                                     <div class="col-12">
                                         <div id="chart-indonesia"></div>
@@ -205,10 +213,11 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Latest Energy Usage Comments -->
                     <div class="col-12 col-xl-8">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Latest Comments</h4>
+                                <h4>Latest Energy Usage Reports</h4>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -216,7 +225,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Name</th>
-                                                <th>Comment</th>
+                                                <th>Report</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -230,7 +239,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="col-auto">
-                                                    <p class=" mb-0">Congratulations on your graduation!</p>
+                                                    <p class="mb-0">Battery fully charged!</p>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -243,9 +252,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="col-auto">
-                                                    <p class=" mb-0">Wow amazing design! Can you make another tutorial
-                                                        for
-                                                        this design?</p>
+                                                    <p class="mb-0">Solar energy is exceeding the consumption!</p>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -258,8 +265,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="col-auto">
-                                                    <p class=" mb-0">What a stunning design! You are so talented and
-                                                        creative!</p>
+                                                    <p class="mb-0">Grid backup engaged during nighttime.</p>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -272,9 +278,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="col-auto">
-                                                    <p class=" mb-0">I love your design! It’s so beautiful and unique!
-                                                        How
-                                                        did you learn to do this?</p>
+                                                    <p class="mb-0">System diagnostics completed successfully.</p>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -285,6 +289,7 @@
                     </div>
                 </div>
             </div>
+            <!-- User Profile and Messages -->
             <div class="col-12 col-lg-3">
                 <div class="card">
                     <div class="card-body py-4 px-4">
@@ -294,7 +299,7 @@
                             </div>
                             <div class="ms-3 name">
                                 <h5 class="font-bold">John Duck</h5>
-                                <h6 class="text-muted mb-0">@johnducky</h6>
+                                <h6 class="text-muted mb-0">Solar Technician</h6>
                             </div>
                         </div>
                     </div>
@@ -310,7 +315,7 @@
                             </div>
                             <div class="name ms-4">
                                 <h5 class="mb-1">Hank Schrader</h5>
-                                <h6 class="text-muted mb-0">@johnducky</h6>
+                                <h6 class="text-muted mb-0">Battery check completed.</h6>
                             </div>
                         </div>
                         <div class="recent-message d-flex px-4 py-3">
@@ -319,7 +324,7 @@
                             </div>
                             <div class="name ms-4">
                                 <h5 class="mb-1">Dean Winchester</h5>
-                                <h6 class="text-muted mb-0">@imdean</h6>
+                                <h6 class="text-muted mb-0">Solar panel cleaned.</h6>
                             </div>
                         </div>
                         <div class="recent-message d-flex px-4 py-3">
@@ -328,7 +333,7 @@
                             </div>
                             <div class="name ms-4">
                                 <h5 class="mb-1">John Dodol</h5>
-                                <h6 class="text-muted mb-0">@dodoljohn</h6>
+                                <h6 class="text-muted mb-0">System diagnostics complete.</h6>
                             </div>
                         </div>
                         <div class="px-4">
@@ -349,6 +354,7 @@
         </section>
     </div>
 </div>
+
 
 {% endblock %}
 {% block js %}
@@ -379,11 +385,19 @@
 
     // Show and hide pages
     function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(page => {
-            page.classList.remove('active');
-        });
-        document.getElementById(pageId).classList.add('active');
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+
+    // Show the selected page if it exists
+    const selectedPage = document.getElementById(pageId);
+    if (selectedPage) {
+        selectedPage.classList.add('active');
+    } else {
+        console.error(`Page with id '${pageId}' not found.`);
     }
+}
 
     // Sign in with Google
     function signInWithGoogle() {
