@@ -6,6 +6,7 @@ import { Msg_p } from './uplift/cluster_message.js';
 const { interval, fromEvent } = rxjs;
 const { map, tap } = rxjs.operators;
 
+let mostRecentlyClickedDOM = null;  // Initialize to track clicked element
 
 
 class DataSource {
@@ -20,7 +21,7 @@ class DataSource {
     // Method to add a data point to the buffer
     addClusterMessage(msg) {
         var b = msg.buffer();
-        addDataView(new DataView(b, 0, b.byteLength));
+        this.addDataView(new DataView(b, 0, b.byteLength));
     }
     addDataView(dv) {
         // Calculate the size needed for this data point
@@ -167,6 +168,52 @@ middleware2Switch.addEventListener('change', (event) => {
 
 //*******D3 Graph Starts Here*********
 const svg = d3.select("svg");
+
+// Attach single-click event to SVG
+svg.on('click', function(event) {
+    // Remove highlight from previously clicked element
+    if (mostRecentlyClickedDOM && mostRecentlyClickedDOM.tagName.toLowerCase() === 'svg') {
+        mostRecentlyClickedDOM.classList.remove('svg-highlight');
+    }
+    
+    // Set the most recently clicked element
+    mostRecentlyClickedDOM = event.target;
+
+    // If the clicked element is the SVG, apply the gradient highlight
+    if (mostRecentlyClickedDOM.tagName.toLowerCase() === 'svg') {
+        mostRecentlyClickedDOM.classList.add('svg-highlight');
+        handleClick();  // Trigger copy/paste prompt on click
+    }
+});
+
+// Function to handle paste with Ctrl + V
+function handlePaste() {
+    if (mostRecentlyClickedDOM && mostRecentlyClickedDOM.tagName.toLowerCase() === 'svg') {
+        navigator.clipboard.readText().then(clipText => {
+            dataSource2.fromBase64(clipText);
+            showControls();
+            if (useDataSource1) {
+                toggleDataSource();
+            } else {
+                updateChart(dataSource2);
+            }
+            doPlay();
+            alert('Data has been pasted and imported into the SVG!');
+        }).catch(err => {
+            console.error('Failed to read data from clipboard: ', err);
+        });
+    } else {
+        alert('Please click on the SVG first to paste data.');
+    }
+}
+
+// Listen for 'Ctrl + V' to trigger paste action
+document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey && event.key === 'v') {
+        handlePaste();
+    }
+});
+
 
 // Tooltip DIV
 const tooltip = d3.select("body").append("div")
@@ -466,8 +513,14 @@ fromEvent(document.getElementById('slider'), 'input').subscribe(event => {
     updateUsingCapturingData(currentIndex);
 });
 
+
+function handleClick() {
+    console.log("SVG clicked. Ready for Ctrl + V paste.");
+    // No prompt needed. The SVG is now ready for paste action.
+}
+
 // Function to handle long-click event
-function handleLongClick() {
+/*function handleClick() {
     const activeDataSource = useDataSource1 ? dataSource1 : dataSource2;
     const userChoice = prompt("Choose an action: 'copy' to copy data to clipboard, 'paste' to import data from clipboard.");
     if (userChoice === 'copy') {
@@ -495,13 +548,14 @@ function handleLongClick() {
     } else {
         alert('Invalid action. Please choose either "copy" or "paste".');
     }
-}
+}*/
 
 // Variables for long-click detection
-let clickTimer;
+//let clickTimer;
 
+// Delete this and replace with single-click functon
 // SVG long-click event setup
-svg.on('mousedown', () => {
+/*svg.on('mousedown', () => {
     clickTimer = setTimeout(handleLongClick, 1000); // 1 second for a long-click
 });
 
@@ -511,7 +565,7 @@ svg.on('mouseup', () => {
 
 svg.on('mouseleave', () => {
     clearTimeout(clickTimer); // Clear the timer if mouse leaves the SVG area
-});
+});*/
 
 
 // Initial chart update

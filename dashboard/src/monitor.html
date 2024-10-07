@@ -24,8 +24,8 @@
             position: relative;
             width: 800px;
             height: 400px;
-            margin: 0 auto;
-            padding-top: 0;
+            margin: 20px auto;
+            padding-top: 20px;
         }
 
         /* Add some spacing for "Showing Live Data" and "Download as SVG" */
@@ -49,12 +49,13 @@
 
         /* Align capture controls directly below the graph */
         #capture-controls {
-            margin-top: 10px; /* Maintain consistency without too much spacing */
-            display: flex;
-            justify-content: flex-start;
-            max-width: 800px;
-            margin-left: 200px; /* Align the play button with y-axis */
-        }
+    margin-top: 40px; /* Increase the space above the controls */
+    display: flex;
+    justify-content: flex-start;
+    max-width: 800px;
+    margin-left: 200px; /* Align the play button with y-axis */
+}
+
 
         /* Make buttons spaced evenly */
         #capture-controls button, #capture-controls input {
@@ -87,7 +88,8 @@
                 <span id="toggleDataSource" class="live-data-text">Showing Live Data</span>
 
                 <!-- SVG container for D3 -->
-                <svg id="monitor-graph" width="800" height="400"></svg>
+                <svg id="monitor-graph" width="750" height="400"></svg>
+                
 
                 <!-- Download SVG button aligned to the right, inside the graph -->
                 <button id="downloadSvgBtn" class="btn btn-success">Download as SVG</button>

@@ -85,4 +85,15 @@ h1, h4 {
   }
 }
 
+/* Add gradient highlight when the SVG is clicked */
+.svg-highlight {
+  outline: 3px solid transparent; /* Smaller outline */
+  outline-offset: -3px; /* Adjust offset to fit within the SVG */
+  border-radius: 10px;
+  background: linear-gradient(45deg, #ff6ec4, #7873f5); /* Keep gradient */
+  padding: 5px; /* Reduce padding to prevent overlap */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: add shadow for depth */
+}
+
+
 /*# sourceMappingURL=uplift.css.map */
