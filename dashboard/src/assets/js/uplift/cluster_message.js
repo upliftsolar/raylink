@@ -280,9 +280,38 @@ class Msg_v extends ClusterMessage {
     }
 }
 
+
+// Class for M
+class Msg_m extends ClusterMessage {
+    static cc = 109;  // Assuming 'm' corresponds to the control character 109
+
+    static fromDataView(dataView) {
+        return new Msg_m(dataView, dataView.byteOffset, dataView.byteLength);
+    }
+
+    mode() {
+        // Adjust offset based on where 'mode' is stored in the body
+        return this.rawBodyDataView().getUint8(0);  // Ensure the offset is correct
+    }
+
+    toString() {
+        return `Mode: ${this.mode()}`;
+    }
+
+    static filter(to = 'any', from = 'any') {
+        return (dataView) => {
+            // Ensure 'ccOffset' is defined correctly
+            return Msg_m.cc === dataView.getUint8(ClusterMessage.ccOffset);  
+        };
+    }
+}
+
+
+
 export {
     dataViewToHex,
     ClusterMessage,
     Msg_p,
     Msg_v,
+    Msg_m
 }

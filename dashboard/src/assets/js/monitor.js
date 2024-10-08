@@ -1,5 +1,5 @@
 import NotifyHandlerAbstract from './uplift/notify_handler_abstract.js';
-import { Msg_p_logger, Msg_v_logger } from './middlewares/customMiddleware.js';
+import { Msg_p_logger, Msg_v_logger, Msg_m_logger } from './middlewares/customMiddleware.js';
 import { BleMiddleware, OnFirstMsgPBleMiddleware } from './middlewares/bleMiddleware.js';
 import { Msg_p } from './uplift/cluster_message.js';
 // RxJS Observables for data source 1
@@ -111,6 +111,20 @@ class DataSource {
 
 const middleware1Switch = document.getElementById('middleware1');
 const middleware2Switch = document.getElementById('middleware2');
+// Middleware 3 (M)
+const middleware3Switch = document.getElementById('middleware3');
+const middleware3 = new Msg_m_logger(3);
+
+middleware3Switch.addEventListener('change', (event) => {
+    if (event.target.checked) {
+        handler.register(middleware3);
+        console.log('Middleware 3 (Msg_m_logger) registered');
+    } else {
+        handler.deregister(middleware3);
+        console.log('Middleware 3 (Msg_m_logger) deregistered');
+    }
+});
+
 
 const handler = new NotifyHandlerAbstract();
 const middleware1 = new Msg_p_logger(1);

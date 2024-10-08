@@ -33,6 +33,26 @@ class Msg_v_logger {
     }
 }
 
+//Create new class for m (handling mode control??)
+class Msg_m_logger {
+    constructor(whatever) {
+        this.whatever = whatever;
+    }
+
+    process(data, state) {
+        // Correct filter usage for Msg_m:
+        if (Msg_m.filter()(data)) {
+            state.m = new Msg_m(data); // Create a new Msg_m object
+            console.log(state.m);
+            console.log(`Mode (m): ${state.m.toString()}`); // Log the mode information
+            return data;
+        } else {
+            return 'pass';
+        }
+    }
+}
+
+
 class FilterToMiddleware {
     constructor(toAddress) {
         this.toAddress = toAddress;
@@ -48,5 +68,6 @@ class FilterToMiddleware {
 export {
     Msg_p_logger,
     Msg_v_logger,
+    Msg_m_logger,
     FilterToMiddleware,
 }
