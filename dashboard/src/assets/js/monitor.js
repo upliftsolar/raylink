@@ -181,7 +181,9 @@ middleware2Switch.addEventListener('change', (event) => {
 });
 
 //*******D3 Graph Starts Here*********
-const svg = d3.select("svg");
+//*******D3 Graph Starts Here*********
+const svg = d3.selectAll("#index-graph, #monitor-graph");
+
 
 // Attach single-click event to SVG
 svg.on('click', function(event) {

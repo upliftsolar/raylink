@@ -47,7 +47,6 @@ const modulesToCopy = {
     "@fortawesome/fontawesome-free": false,
     "rater-js": false,
     "bootstrap-icons": false,
-    apexcharts: true,
     "perfect-scrollbar": true,
     flatpickr: true,
     filepond: true,
