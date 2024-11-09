@@ -131,7 +131,10 @@ document.getElementById('connectButton').addEventListener('click', async () => {
         });
 
         console.log(`Device selected: ${device.name} (ID: ${device.id})`);
-        await handler.connect(device);
+        await handler.connect(device);// TODO: Modify this method  so that it internal keeps track of the **notify & write charact. seperately**
+        //create method for handler.write (nrf connect for reference) (sent t message to device (time))
+
+        //create timestamp button, when pressed, contruct message t and gives it to handler.write (t)
         document.getElementById('connectButton').innerHTML = device.name;
         handler.register(new OnFirstMsgPBleMiddleware((dataView) => {
             document.getElementById('toggleCapture').disabled = false;
@@ -139,6 +142,21 @@ document.getElementById('connectButton').addEventListener('click', async () => {
     } catch (error) {
         console.error('Error:', error);
     }
+});
+
+
+//**If it doesn't work delete this **/
+//Adding event listener for ECHO button, send meesage when cilcked
+document.getElementById('echoButton').addEventListener('click', () => {
+    // Generate a timestamp as the message
+    const timestamp = new Date().toISOString();
+    // Encodes timestamp to Unit8Array format
+    const message = new TextEncoder().encode(timestamp);
+    // Send meesage to the device usig write() 
+    handler.write(message);
+    // Verify message sent
+    console.log('Message sent to device:', timestamp);
+    
 });
 
 middleware1Switch.addEventListener('change', (event) => {
