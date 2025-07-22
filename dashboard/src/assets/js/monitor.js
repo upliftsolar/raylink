@@ -1,5 +1,5 @@
 import NotifyHandlerAbstract from './uplift/notify_handler_abstract.js';
-import { Msg_p_logger, Msg_v_logger, Msg_m_logger } from './middlewares/customMiddleware.js';
+import { Msg_p_logger, Msg_v_logger, Msg_m_logger, NotObservedWindowMiddleware } from './middlewares/customMiddleware.js';
 import { BleMiddleware, OnFirstMsgPBleMiddleware } from './middlewares/bleMiddleware.js';
 import { Msg_p } from './uplift/cluster_message.js';
 // RxJS Observables for data source 1
@@ -22,7 +22,7 @@ class DataSource {
         var b = msg.buffer();
         this.addDataView(new DataView(b, 0, b.byteLength));
     }
-    
+
     addDataView(dv) {
         const requiredSize = dv.byteLength + 2; // 2 bytes for delimiter
         const start = this.size;
@@ -104,7 +104,6 @@ class DataSource {
 const middleware1Switch = document.getElementById('middleware1');
 const middleware2Switch = document.getElementById('middleware2');
 const middleware3Switch = document.getElementById('middleware3');
-const middleware3 = new Msg_m_logger(3);
 
 middleware3Switch.addEventListener('change', (event) => {
     if (event.target.checked) {
@@ -119,6 +118,8 @@ middleware3Switch.addEventListener('change', (event) => {
 const handler = new NotifyHandlerAbstract();
 const middleware1 = new Msg_p_logger(1);
 const middleware2 = new Msg_v_logger(2);
+const middleware3 = new Msg_m_logger(3);
+const notObservedWindowMiddleware = new NotObservedWindowMiddleware();
 
 const serviceUUID = '2997855E-05B6-2C36-86A5-6C9856C73F4D'.toLowerCase();
 
@@ -156,7 +157,7 @@ document.getElementById('echoButton').addEventListener('click', () => {
     handler.write(message);
     // Verify message sent
     console.log('Message sent to device:', timestamp);
-    
+
 });
 
 middleware1Switch.addEventListener('change', (event) => {
@@ -183,7 +184,7 @@ middleware2Switch.addEventListener('change', (event) => {
 const svg = d3.selectAll("#index-graph, #monitor-graph");
 
 // Attach single-click event to SVG
-svg.on('click', function(event) {
+svg.on('click', function (event) {
     if (mostRecentlyClickedDOM && mostRecentlyClickedDOM.tagName.toLowerCase() === 'svg') {
         mostRecentlyClickedDOM.classList.remove('svg-highlight');
     }
@@ -307,7 +308,7 @@ const monitorPath = gMonitor.append("path").attr("id", "monitor-path").attr("fil
 const xAxisIndex = gIndex.append("g").attr("transform", `translate(0,${height})`);
 const yAxisIndex = gIndex.append("g");
 const xAxisMonitor = gMonitor.append("g").attr("transform", `translate(0,${height})`);
-const yAxisMonitor = gMonitor.append("g");
+const yAxisMonitor = gIndex.append("g");
 
 let multiplyOdd = false;
 let useDataSource1 = true;
@@ -318,7 +319,7 @@ let sharingEnabled = false;
 // Function to update chart
 function updateChart(dataSource) {
     const data = dataSource.getClusterMessages(Msg_p.fromDataView);
-    
+
     // Update x domain based on the current data
     x.domain(d3.extent(data, d => d.getSeconds()));
 
@@ -343,35 +344,42 @@ function updateChart(dataSource) {
     yAxisMonitor.call(d3.axisLeft(y));
 
     // Mousemove event to show tooltip and move focus circle
-    svg.on("mousemove", function(event) {
+    svg.on("mousemove", function (event) {
+        if (!data || data.length === 0) return; // Prevents error if data is empty
+
         const [mouseX] = d3.pointer(event, this);
         const x0 = x.invert(mouseX);
         const i = d3.bisector(d => d.getSeconds()).left(data, x0);
 
+        // Guard for out-of-bounds
+        if (i === 0 || i >= data.length) return;
+
         const d0 = data[i - 1];
         const d1 = data[i];
+        if (!d0 || !d1) return;
+
         const d = x0 - d0.getSeconds() > d1.getSeconds() - x0 ? d1 : d0;
 
         // Move the focus circle to the correct x, y position for both graphs
         focusIndex.attr("cx", x(d.getSeconds()))
-                  .attr("cy", y(d.temperature()))
-                  .style("visibility", "visible");
+            .attr("cy", y(d.temperature()))
+            .style("visibility", "visible");
 
         focusMonitor.attr("cx", x(d.getSeconds()))
-                    .attr("cy", y(d.temperature()))
-                    .style("visibility", "visible");
+            .attr("cy", y(d.temperature()))
+            .style("visibility", "visible");
 
         // Update and show tooltip with relevant information
         tooltip.html(`Temperature: ${d.temperature()}<br>Time: ${d.getSeconds()}s`)
-               .style("top", (event.pageY - 40) + "px")
-               .style("left", (event.pageX + 10) + "px")
-               .style("visibility", "visible");
+            .style("top", (event.pageY - 40) + "px")
+            .style("left", (event.pageX + 10) + "px")
+            .style("visibility", "visible");
     })
-    .on("mouseout", function() {
-        focusIndex.style("visibility", "hidden");
-        focusMonitor.style("visibility", "hidden");
-        tooltip.style("visibility", "hidden");
-    });
+        .on("mouseout", function () {
+            focusIndex.style("visibility", "hidden");
+            focusMonitor.style("visibility", "hidden");
+            tooltip.style("visibility", "hidden");
+        });
 }
 
 const bleMiddleware = new BleMiddleware((dataView) => {
@@ -386,6 +394,10 @@ const bleMiddleware = new BleMiddleware((dataView) => {
 });
 
 handler.register(bleMiddleware);
+handler.register(middleware1);
+handler.register(middleware2);
+handler.register(middleware3);
+handler.register(notObservedWindowMiddleware);
 
 function updateUsingCapturingData(index) {
     if (!useDataSource1) {
@@ -485,3 +497,34 @@ function handleClick() {
 
 // Initial chart update
 updateChart(dataSource1);
+
+// Initialize not observed as arrays for each type
+window.notObserved = { p: [], v: [], m: [] };
+window.addEventListener('DOMContentLoaded', function () {
+    if (document.getElementById('notObservedP')) document.getElementById('notObservedP').textContent = window.notObserved.p.length;
+    if (document.getElementById('notObservedV')) document.getElementById('notObservedV').textContent = window.notObserved.v.length;
+    if (document.getElementById('notObservedM')) document.getElementById('notObservedM').textContent = window.notObserved.m.length;
+});
+
+// Periodically update the notObserved UI counters
+setInterval(() => {
+    if (window.notObserved) {
+        if (document.getElementById('notObservedP')) {
+            document.getElementById('notObservedP').textContent = window.notObserved.p.length;
+        }
+        if (document.getElementById('notObservedV')) {
+            document.getElementById('notObservedV').textContent = window.notObserved.v.length;
+        }
+        if (document.getElementById('notObservedM')) {
+            document.getElementById('notObservedM').textContent = window.notObserved.m.length;
+        }
+    }
+    // Update notObservedWindowContainer
+    if (window.notObservedWindow && document.getElementById('notObservedWindowContainer')) {
+        const container = document.getElementById('notObservedWindowContainer');
+        const entries = Object.entries(window.notObservedWindow)
+            .map(([cc, arr]) => `${cc}: ${arr.length}`)
+            .join(' ');
+        container.textContent = entries;
+    }
+}, 200);
