@@ -506,7 +506,9 @@ window.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('notObservedM')) document.getElementById('notObservedM').textContent = window.notObserved.m.length;
 });
 
-// Periodically update the notObserved UI counters
+const SPARKLINE_HISTORY = 30; // 30 points = 6 seconds at 200ms interval
+if (!window.notObservedSparkline) window.notObservedSparkline = {};
+
 setInterval(() => {
     if (window.notObserved) {
         if (document.getElementById('notObservedP')) {
@@ -519,12 +521,42 @@ setInterval(() => {
             document.getElementById('notObservedM').textContent = window.notObserved.m.length;
         }
     }
-    // Update notObservedWindowContainer
+    // Update notObservedWindowContainer with sparklines
     if (window.notObservedWindow && document.getElementById('notObservedWindowContainer')) {
         const container = document.getElementById('notObservedWindowContainer');
-        const entries = Object.entries(window.notObservedWindow)
-            .map(([cc, arr]) => `${cc}: ${arr.length}`)
-            .join(' ');
-        container.textContent = entries;
+        container.innerHTML = '';
+        Object.entries(window.notObservedWindow).forEach(([cc, arr]) => {
+            // Update history
+            if (!window.notObservedSparkline[cc]) window.notObservedSparkline[cc] = [];
+            const history = window.notObservedSparkline[cc];
+            history.push(arr.length);
+            if (history.length > SPARKLINE_HISTORY) history.shift();
+
+            // Generate SVG sparkline
+            const max = Math.max(...history, 1);
+            const width = 60, height = 16;
+            const points = history.map((v, i) => {
+                const x = (i / (SPARKLINE_HISTORY - 1)) * width;
+                const y = height - (v / max) * height;
+                return `${x},${y}`;
+            }).join(' ');
+
+            const svg = `
+                <svg width="${width}" height="${height}" style="vertical-align:middle">
+                    <polyline fill="none" stroke="#0074d9" stroke-width="2" points="${points}" />
+                </svg>
+            `;
+
+            // Add to container
+            const div = document.createElement('div');
+            div.style.display = 'inline-block';
+            div.style.marginRight = '12px';
+            div.innerHTML = `<span style="font-size:10px;">${cc}</span> ${svg}`;
+            container.appendChild(div);
+        });
     }
 }, 200);
+
+// Set global debug flag based on URL search param
+const params = new URLSearchParams(window.location.search);
+window.DEBUG = params.has('debug') && params.get('debug') !== 'false' && params.get('debug') !== '0';

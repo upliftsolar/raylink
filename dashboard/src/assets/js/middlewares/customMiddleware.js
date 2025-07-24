@@ -8,18 +8,23 @@ class Msg_p_logger {
     process(data, state) {
         try {
             if (Msg_p.filter(data)) {
-                // Defensive: Only parse if data.byteLength is sufficient for Msg_p
-                if (data.byteLength >= 26) { // 26 is the offset for temperature()
-                    state.p = new Msg_p(data);
+                console.debug('Msg_p_logger: data.byteLength', data.byteLength);
+                console.debug('Msg_p_logger: ClusterMessage.bodyOffset', ClusterMessage.bodyOffset);
+                const testP = new Msg_p(data);
+                const bodyView = testP.rawBodyDataView();
+                if (bodyView && bodyView.byteLength >= 26) {
+                    state.p = testP;
                     console.log(state.p);
-                    console.log(`p: ${state.p.toString()}`)
+                    console.log(`p: ${state.p.toString()}`);
                 } else {
-                    console.warn('Msg_p_logger: DataView too short for Msg_p', data);
+                    if (window.DEBUG) {
+                        console.warn('Msg_p_logger: rawBodyDataView too short for Msg_p', bodyView);
+                    }
                 }
                 return data;
             }
         } catch (e) {
-            console.error('Msg_p_logger error:', e, data);
+            console.error('Msg_p_logger error:', e, data, e.stack);
         }
         return 'pass';
     }
@@ -32,18 +37,27 @@ class Msg_v_logger {
     process(data, state) {
         try {
             if (Msg_v.filter(data)) {
-                // Defensive: Only parse if data.byteLength is sufficient for Msg_v (needs at least bodyOffset for body)
-                if (data.byteLength >= ClusterMessage.bodyOffset) {
-                    state.v = new Msg_v(data);
+                console.debug('Msg_v_logger: data.byteLength', data.byteLength);
+                console.debug('Msg_v_logger: ClusterMessage.bodyOffset', ClusterMessage.bodyOffset);
+                const testV = new Msg_v(data);
+                const bodyView = testV.rawBodyDataView && testV.rawBodyDataView();
+                if (bodyView && bodyView.byteLength > 0) {
+                    // Print the bytes of the body
+                    const bytes = Array.from(new Uint8Array(bodyView.buffer, bodyView.byteOffset, bodyView.byteLength));
+                    console.log('Msg_v_logger: body bytes', bytes);
+                    state.v = testV;
+                    // Print the decoded version string
                     console.log(state.v);
-                    console.log(`version: ${state.v.toString()}`)
+                    console.log(`version: ${state.v.toString()}`);
                 } else {
-                    console.warn('Msg_v_logger: DataView too short for Msg_v', data);
+                    if (window.DEBUG) {
+                        console.warn('Msg_v_logger: rawBodyDataView too short for Msg_v', bodyView);
+                    }
                 }
                 return data;
             }
         } catch (e) {
-            console.error('Msg_v_logger error:', e, data);
+            console.error('Msg_v_logger error:', e, data, e.stack);
         }
         return 'pass';
     }
@@ -101,11 +115,3 @@ export {
     FilterToMiddleware,
     NotObservedWindowMiddleware,
 }
-
-setInterval(() => {
-    if (window.notObserved) {
-        console.log('notObserved.p:', window.notObserved.p);
-        console.log('notObserved.v:', window.notObserved.v);
-        console.log('notObserved.m:', window.notObserved.m);
-    }
-}, 1000);
